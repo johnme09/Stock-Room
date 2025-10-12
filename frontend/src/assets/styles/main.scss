@@ -1,0 +1,10 @@
+@import 'variables';
+
+// Applies basic styles globally
+body {
+  font-family: $font-family-main;
+  background-color: $main-background-color;
+  color: $text-color;
+  margin: 0;
+  padding: 0;
+}
