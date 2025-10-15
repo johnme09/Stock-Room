@@ -8,3 +8,9 @@ body {
   margin: 0;
   padding: 0;
 }
+
+// Add spacing to all page content except header
+.page {
+  padding: $margin-medium;
+  box-sizing: border-box;
+}

@@ -3,14 +3,21 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: $padding-medium $padding-large;
   background-color: $primary-color;
   box-shadow: $box-shadow-light;
   position: relative;
 
   &__left {
-    position: relative;
+    position: absolute;
+    left: $padding-large;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    height: 100%;
   }
 
   .profile-button {
@@ -58,13 +65,18 @@
 
   &__center {
     flex: 1;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    pointer-events: none;
 
     .header__title {
       margin: 0;
       font-size: $font-size-title;
       color: $main-background-color;
       cursor: pointer;
+      pointer-events: auto;
 
       &:hover {
         color: $secondary-color;

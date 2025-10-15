@@ -1,14 +1,21 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 1rem 2rem;
   background-color: #4FB7B3;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   position: relative;
 }
 .header__left {
-  position: relative;
+  position: absolute;
+  left: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 .header .profile-button {
   background: #637AB9;
@@ -50,13 +57,18 @@
 }
 .header__center {
   flex: 1;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  pointer-events: none;
 }
 .header__center .header__title {
   margin: 0;
   font-size: 2rem;
   color: #ffffff;
   cursor: pointer;
+  pointer-events: auto;
 }
 .header__center .header__title:hover {
   color: #A8FBD3;

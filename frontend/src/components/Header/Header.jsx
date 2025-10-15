@@ -30,8 +30,8 @@ const Header = () => {
         )}
       </div>
 
-      <div className="header__center" onClick={() => handleNavigation("/")}>
-        <h1 className="header__title">Stock Room</h1>
+      <div className="header__center">
+        <h1 className="header__title" onClick={() => handleNavigation("/")}>Stock Room</h1>
       </div>
     </header>
   );
