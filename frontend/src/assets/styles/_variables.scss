@@ -1,10 +1,11 @@
 // Theme Colors
-$primary-color: #4FB7B3;
-$secondary-color: #A8FBD3;
+$primary-color: #085E05C5;
+$secondary-color: #c9e493;
 $tertiary-color: #637AB9;
 $quaternary-color: #31326F;
 $main-background-color: #ffffff;
-$text-color: #000000;
+$text-color-dark: #000000;
+$text-color-light: #ffffff;
 
 // Typography
 $font-family-main: 'Roboto', sans-serif;
@@ -18,8 +19,8 @@ $padding-small: 0.5rem;
 $padding-medium: 1rem;
 $padding-large: 2rem;
 $margin-small: 0.5rem;
-$margin-medium: 1rem;
-$margin-large: 2rem;
+$margin-medium: 1.5rem;
+$margin-large: 3rem;
 
 // Borders
 $border-radius-small: 4px;
@@ -27,4 +28,4 @@ $border-radius-medium: 8px;
 $border-radius-large: 12px;
 
 // Shadows
-$box-shadow-light: 0 2px 6px rgba(0, 0, 0, 0.1);
+$box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);

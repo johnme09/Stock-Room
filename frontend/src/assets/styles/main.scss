@@ -1,16 +1,16 @@
-@import 'variables';
+@use 'variables' as *;
 
 // Applies basic styles globally
 body {
   font-family: $font-family-main;
   background-color: $main-background-color;
-  color: $text-color;
+  color: $text-color-dark;
   margin: 0;
   padding: 0;
 }
 
 // Add spacing to all page content except header
 .page {
-  padding: $margin-medium;
+  padding: $margin-large;
   box-sizing: border-box;
 }
