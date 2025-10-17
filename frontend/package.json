@@ -1,44 +1,39 @@
 {
-  "name": "stock-room",
-  "version": "0.1.0",
+  "name": "reactexamples",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
   "dependencies": {
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.8.0",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "prop-types": "^15.8.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.9.3",
+    "sass": "^1.93.2",
+    "uuid": "^13.0.0",
+    "web-vitals": "^4.2.3"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.4",
+    "babel-plugin-react-compiler": "^19.1.0-rc.3",
+    "eslint": "^9.36.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.22",
+    "globals": "^16.4.0",
+    "vite": "npm:rolldown-vite@7.1.14"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "description": "The website will have user-made communities as pages where the owner can create listings of the items in that collection, and users can mark down what they have. Collectibles can be both physical and digital, like records, plushies, Pokémon cards, digital comics, etc. The check off list for users allows them to keep track of what they have and keep an eye out for what they don’t have. This is especially good for collectors that don’t display their collection or keep it in a storage location, so that they don’t have to manually go through their collection to find out if they have a specific item or not. <br>\tWe would like to create forum-style components with moderators for controlled discussions about where to find collectibles, how to maintain them, and other general topics related to collectible content. We hope to create a centralized hub for discussion of collectibles, whereas other communities may include off-topic and irrelevant information, as well as discussion about the content around the collectibles, such as the movie, book, or person that inspired the creation of the collectible. <br>This is a good project because any person can have a collection of anything. This project will require the implementation of secure authentication for users to log in and out of the web site. We will develop a user interface for browsing and creating communities, as well as viewing and checking off collections. There will also need to be a database to maintain community information as well as user specific information. It really touches on every aspect of web development to give us an opportunity to experiment with everything learned in class. ### Technology: Front-end: React <br>Back-end: Node.js <br>Database: MySQL <br>Testing: Jest <br>Hosting: AWS <br>Version control: Github ### Collaboration plan: Frequency of meetings: Before/after class (roughly twice a week), meetings as needed <br>Means of communication: Discord, email. In-person discussions",
-  "main": "index.js",
-  "devDependencies": {},
+    "description": "The website will have user-made communities as pages where the owner can create listings of the items in that collection, and users can mark down what they have. Collectibles can be both physical and digital, like records, plushies, Pokémon cards, digital comics, etc. The check off list for users allows them to keep track of what they have and keep an eye out for what they don’t have. This is especially good for collectors that don’t display their collection or keep it in a storage location, so that they don’t have to manually go through their collection to find out if they have a specific item or not. <br>\tWe would like to create forum-style components with moderators for controlled discussions about where to find collectibles, how to maintain them, and other general topics related to collectible content. We hope to create a centralized hub for discussion of collectibles, whereas other communities may include off-topic and irrelevant information, as well as discussion about the content around the collectibles, such as the movie, book, or person that inspired the creation of the collectible. <br>This is a good project because any person can have a collection of anything. This project will require the implementation of secure authentication for users to log in and out of the web site. We will develop a user interface for browsing and creating communities, as well as viewing and checking off collections. There will also need to be a database to maintain community information as well as user specific information. It really touches on every aspect of web development to give us an opportunity to experiment with everything learned in class. ### Technology: Front-end: React <br>Back-end: Node.js <br>Database: MySQL <br>Testing: Jest <br>Hosting: AWS <br>Version control: Github ### Collaboration plan: Frequency of meetings: Before/after class (roughly twice a week), meetings as needed <br>Means of communication: Discord, email. In-person discussions",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/johnme09/Stock-Room.git"

@@ -5,6 +5,9 @@
 /.pnp
 .pnp.js
 
+# Ignore frontend node_modules
+/frontend/node_modules
+
 # testing
 /coverage
 
