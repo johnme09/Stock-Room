@@ -12,6 +12,8 @@ const CommunityCard = ({ item: { id, name, description, photo } }) => {
 				<h3>{name}</h3>
 				<p>{description}</p>
 			</div>
+
+			<button onClick="">View Community</button>
 		</div>
 	);
 }
