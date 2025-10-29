@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 
-const CommunityCard = ({ item: { id, name, description, photo } }) => {
+const CommunityCard = ({ item: { id, name, description, photo, communityPage } }) => {
 	return (
 		<div>
 
@@ -13,7 +14,7 @@ const CommunityCard = ({ item: { id, name, description, photo } }) => {
 				<p>{description}</p>
 			</div>
 
-			<button onClick="">View Community</button>
+			<button onClick={() => navigate("/" + communityPage)}>View Community</button>
 		</div>
 	);
 }
@@ -25,6 +26,7 @@ CommunityCard.propTypes = {
 		name: PropTypes.string,
 		description: PropTypes.string,
 		photo: PropTypes.string,
+		communityPage: PropTypes.string,
 	}),
 };
 
