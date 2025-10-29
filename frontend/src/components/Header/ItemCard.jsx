@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-const ItemCard = ({ item: { id, name, description, photo } }) => {
+const ItemCard = ({ item: { id, name, description, photo, wantStatus } }) => {
 	return (
 		<div>
 
@@ -23,6 +23,7 @@ ItemCard.propTypes = {
 		name: PropTypes.string,
 		description: PropTypes.string,
 		photo: PropTypes.string,
+		wantStatus: PropTypes.string,
 	}),
 };
 
