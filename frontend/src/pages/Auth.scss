@@ -1,0 +1,134 @@
+@use "../assets/styles/variables" as *;
+
+.auth-page {
+	min-height: calc(100vh - 60px); // Adjust based on header height
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: $padding-large;
+	background-color: $main-background-color;
+}
+
+.auth-container {
+	width: 100%;
+	max-width: 400px;
+	padding: $padding-large * 1.5;
+	background-color: $main-background-color;
+	border-radius: $border-radius-large;
+	box-shadow: $box-shadow;
+
+	h1 {
+		margin: 0 0 $margin-small 0;
+		font-size: $font-size-title;
+		color: $text-color-dark;
+		text-align: center;
+	}
+
+	.auth-subtitle {
+		text-align: center;
+		color: darken($text-color-dark, 30%);
+		margin-bottom: $margin-large;
+		font-size: $font-size-small;
+	}
+}
+
+.auth-form {
+	display: flex;
+	flex-direction: column;
+	gap: $margin-medium;
+}
+
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: $margin-small;
+
+	label {
+		font-weight: 500;
+		color: $text-color-dark;
+		font-size: $font-size-small;
+	}
+
+	input {
+		padding: $padding-medium;
+		border: 2px solid lighten($text-color-dark, 70%);
+		border-radius: $border-radius-small;
+		font-size: $font-size-body;
+		font-family: $font-family-main;
+		transition: border-color 0.2s ease;
+
+		&:focus {
+			outline: none;
+			border-color: $primary-color;
+		}
+
+		&:invalid {
+			border-color: #dc3545;
+		}
+
+		&[aria-invalid="true"] {
+			border-color: #dc3545;
+		}
+	}
+
+	.field-error {
+		color: #dc3545;
+		font-size: 0.75rem;
+		margin-top: -$margin-small;
+	}
+}
+
+.auth-error {
+	background-color: #f8d7da;
+	color: #721c24;
+	padding: $padding-medium;
+	border-radius: $border-radius-small;
+	border: 1px solid #f5c6cb;
+	font-size: $font-size-small;
+	text-align: center;
+}
+
+.auth-button {
+	padding: $padding-medium;
+	background-color: $primary-color;
+	color: $text-color-light;
+	border: none;
+	border-radius: $border-radius-small;
+	font-size: $font-size-body;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.2s ease, transform 0.1s ease;
+
+	&:hover:not(:disabled) {
+		background-color: darken($primary-color, 10%);
+	}
+
+	&:active:not(:disabled) {
+		transform: scale(0.98);
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}
+
+.auth-footer {
+	text-align: center;
+	margin-top: $margin-large;
+	font-size: $font-size-small;
+	color: darken($text-color-dark, 20%);
+}
+
+.auth-link {
+	color: $primary-color;
+	text-decoration: none;
+	font-weight: 500;
+	transition: color 0.2s ease;
+
+	&:hover {
+		color: darken($primary-color, 10%);
+		text-decoration: underline;
+	}
+}
+

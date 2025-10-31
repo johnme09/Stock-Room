@@ -5,7 +5,10 @@ import Header from "./components/Header/Header";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
-import ExamplePage from "./pages/ExamplePage";
+import Collection from "./pages/Collection";
+import PersonalCollection from "./pages/PersonalCollection";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 
 function App() {
   return (
@@ -15,9 +18,13 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/new" element={<ExamplePage />} />
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/collection/:id" element={<Collection />} />
+          <Route path="/collection/personal" element={<PersonalCollection />} />
         </Routes>
       </main>
     </div>

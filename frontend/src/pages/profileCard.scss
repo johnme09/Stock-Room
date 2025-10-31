@@ -1,0 +1,159 @@
+#profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+
+  #profile-pic {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #f0f0f0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+
+  #username-heading {
+    margin: 0;
+    font-size: 2rem;
+    color: #1a1a1a;
+    text-align: center;
+  }
+
+  #about-me {
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+    padding: 0 1rem;
+
+    h2 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: #2d2d2d;
+    }
+
+    p {
+      margin: 0;
+      color: #4b5563;
+      line-height: 1.6;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+// Communities grid container
+div[role="list"][aria-label="User communities"] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+// Community section styles
+.community {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+
+  img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #f6f7fb;
+    border: 2px solid #eee;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+  }
+
+  h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.6rem;
+    color: #1a1a1a;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0 0 1.5rem 0;
+    color: #4b5563;
+    line-height: 1.6;
+    font-size: 1.1rem;
+    flex-grow: 1;
+  }
+
+  button {
+    padding: 0.75rem 2rem;
+    background: #61607a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    width: 100%;
+    max-width: 200px;
+
+    &:hover {
+      background: #4338ca;
+      transform: scale(1.02);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  #profile {
+    padding: 1.5rem;
+    gap: 1.5rem;
+
+    #profile-pic {
+      width: 140px;
+      height: 140px;
+    }
+
+    #username-heading {
+      font-size: 1.75rem;
+    }
+  }
+
+  .community {
+    grid-template-columns: 1fr;
+    text-align: center;
+
+    img {
+      width: 140px;
+      height: 100px;
+      margin: 0 auto;
+    }
+
+    button {
+      width: 100%;
+    }
+  }
+}
