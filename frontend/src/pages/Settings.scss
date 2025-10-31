@@ -1,0 +1,100 @@
+/* Settings page styles to match boxed/grid look from other pages */
+
+.settings-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+}
+
+.settings-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 6px 18px rgba(17,24,39,0.04);
+  margin-bottom: 1.5rem;
+}
+
+.settings-card h2 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.setting-row label {
+  min-width: 110px;
+  font-weight: 600;
+}
+
+.current-value {
+  flex: 1 1 auto;
+  color: #374151;
+}
+
+.change-btn {
+  background: #626262;
+  color: #fff;
+  border: none;
+  padding: 0.45rem 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.change-btn:hover { background: #4f4f4f; }
+
+#save-about {
+  background: #626262;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+#save-about:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+textarea#about-text {
+  width: 100%;
+  min-height: 96px;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  resize: vertical;
+  font-size: 1rem;
+}
+
+.danger {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.danger:hover { background: #dc2626; }
+
+@media (max-width: 640px) {
+  .setting-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .setting-row label {
+    min-width: 0;
+  }
+
+  .current-value {
+    margin-bottom: 0.5rem;
+  }
+}
