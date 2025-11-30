@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Header.scss";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,6 +10,7 @@ const Header = () => {
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
   const firstMenuItemRef = useRef(null);
+  const { user, logout } = useAuth();
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -52,13 +54,18 @@ const Header = () => {
     };
   }, [isOpen]);
 
-  const menuItems = [
-    { path: "/", label: "Home" },
-    { path: "/profile", label: "Profile" },
-    { path: "/settings", label: "Settings" },
-    { path: "/login", label: "Login" },
-    { path: "/signup", label: "Sign Up" },
-  ];
+  const menuItems = user
+    ? [
+        { path: "/", label: "Home" },
+        { path: "/profile", label: "Profile" },
+        { path: "/settings", label: "Settings" },
+        { label: "Log out", action: logout },
+      ]
+    : [
+        { path: "/", label: "Home" },
+        { path: "/login", label: "Login" },
+        { path: "/signup", label: "Sign Up" },
+      ];
 
   return (
     <header className="header" role="banner">
@@ -85,17 +92,29 @@ const Header = () => {
             >
               {menuItems.map((item, index) => (
                 <button
-                  key={item.path}
-                  onClick={() => handleNavigation(item.path)}
+                  key={item.label}
+                  onClick={() => {
+                    if (item.action) {
+                      item.action();
+                      setIsOpen(false);
+                    } else if (item.path) {
+                      handleNavigation(item.path);
+                    }
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      handleNavigation(item.path);
+                      if (item.action) {
+                        item.action();
+                        setIsOpen(false);
+                      } else if (item.path) {
+                        handleNavigation(item.path);
+                      }
                     }
                   }}
                   ref={index === 0 ? firstMenuItemRef : null}
                   role="menuitem"
-                  aria-current={location.pathname === item.path ? 'page' : undefined}
+                  aria-current={item.path && location.pathname === item.path ? 'page' : undefined}
                   type="button"
                 >
                   {item.label}
@@ -128,6 +147,12 @@ const Header = () => {
           </button>
         </h1>
       </div>
+
+      {user && (
+        <div className="header__right" aria-live="polite">
+          <span>Hi, {user.username}</span>
+        </div>
+      )}
     </header>
   );
 };

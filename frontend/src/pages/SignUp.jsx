@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Auth.scss';
+import { useAuth } from '../context/AuthContext.jsx';
 
 // SignUp page for new user registration
 export default function SignUp() {
@@ -14,6 +15,7 @@ export default function SignUp() {
 	const [error, setError] = useState('');
 	const [validationErrors, setValidationErrors] = useState({});
 	const navigate = useNavigate();
+	const { register } = useAuth();
 
 	const handleChange = useCallback((e) => {
 		const { name, value } = e.target;
@@ -84,19 +86,11 @@ export default function SignUp() {
 		setError('');
 
 		try {
-			// TODO: Replace with actual API call
-			// Example: const response = await fetch('/api/auth/signup', { ... });
-			
-			// Simulate API call
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			
-			// TODO: Store token and user data after successful signup
-			// localStorage.setItem('token', response.data.token);
-			// localStorage.setItem('user', JSON.stringify(response.data.user));
-			
-			// For now, just simulate successful signup
-			
-			// Navigate to home after successful signup
+			await register({
+				username: formData.username.trim(),
+				email: formData.email.trim(),
+				password: formData.password,
+			});
 			navigate('/');
 		} catch (err) {
 			setError(err.message || 'Sign up failed. Please try again.');

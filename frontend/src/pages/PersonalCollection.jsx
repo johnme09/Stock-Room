@@ -1,58 +1,104 @@
-import React, { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import './Collection.scss';
+import { apiClient } from '../lib/apiClient.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
-// PersonalCollection page displays personal view with item status (want/have/don't want)
+// PersonalCollection page displays personal view with item status (want/have/don't have)
 export default function PersonalCollection() {
-	const [communityName] = useState('Pokémon Card Collectors');
+	const [searchParams] = useSearchParams();
+	const communityId = searchParams.get('communityId');
+	const [community, setCommunity] = useState(null);
+	const [items, setItems] = useState([]);
+	const [statuses, setStatuses] = useState({});
 	const [view, setView] = useState('Personal');
-	const [isModerator] = useState(false); // TODO: Set from user role
-	const [isFavorited, setIsFavorited] = useState(false);
+	const [error, setError] = useState('');
 	const navigate = useNavigate();
+	const { user } = useAuth();
 
-	// Sample item data with status — use existing JPEGs in public/images
-	const [items, setItems] = useState([
-		{ id: 1, name: 'Pikachu', description: 'Rare holographic Pikachu card - Looking to add this iconic Electric-type to my collection!', status: 'want', image: '/images/Pikachu.jpeg' },
-		{ id: 2, name: 'Charmander', description: 'First edition Charmander card in mint condition, one of my favorite Fire-types.', status: 'have', image: '/images/Charmander.jpeg' },
-		{ id: 3, name: 'Skitty', description: 'Common Skitty card - Already have multiple copies in my collection.', status: 'dontWant', image: '/images/Skitty.jpeg' },
-	]);
-
-	const handleStatusChange = useCallback((itemId, newStatus) => {
-		setItems(prevItems => 
-			prevItems.map(item => 
-				item.id === itemId ? { ...item, status: newStatus } : item
-			)
-		);
-		// Status change feedback handled by radio button state
-	}, []);
-
-	const handleViewChange = useCallback((e) => {
-		const newView = e.target.value;
-		setView(newView);
-		if (newView === 'Community') {
-			navigate('/collection');
+	const loadCommunityData = useCallback(async () => {
+		if (!communityId) return;
+		try {
+			const [{ community: communityData }, { items: itemList }] = await Promise.all([
+				apiClient.get(`/communities/${communityId}`),
+				apiClient.get(`/communities/${communityId}/items`),
+			]);
+			setCommunity(communityData);
+			setItems(itemList);
+		} catch (err) {
+			setError(err.message);
 		}
-	}, [navigate]);
+	}, [communityId]);
 
-	const handleFavorite = useCallback(() => {
-		setIsFavorited(prev => !prev);
-		// TODO: Update favorite status in database
-	}, []);
+	const loadStatuses = useCallback(async () => {
+		if (!communityId || !user) return;
+		try {
+			const data = await apiClient.get(`/user-items?communityId=${communityId}`);
+			const map = {};
+			data.userItems.forEach(({ item, status }) => {
+				if (item) {
+					map[item.id] = status;
+				}
+			});
+			setStatuses(map);
+		} catch (err) {
+			setError(err.message);
+		}
+	}, [communityId, user]);
 
-	const handleManageItems = useCallback(() => {
-		// TODO: Navigate to management page or open modal
-		alert('Item management feature coming soon!');
-	}, []);
+	useEffect(() => {
+		loadCommunityData();
+	}, [loadCommunityData]);
 
-	const wantItems = items.filter(item => item.status === 'want');
-	const haveItems = items.filter(item => item.status === 'have');
-	const dontWantItems = items.filter(item => item.status === 'dontWant');
+	useEffect(() => {
+		loadStatuses();
+	}, [loadStatuses]);
+
+	const handleStatusChange = useCallback(
+		async (itemId, newStatus) => {
+			try {
+				await apiClient.put('/user-items', { itemId, status: newStatus });
+				setStatuses((prev) => ({ ...prev, [itemId]: newStatus }));
+			} catch (err) {
+				setError(err.message);
+			}
+		},
+		[]
+	);
+
+	const handleViewChange = useCallback(
+		(e) => {
+			const newView = e.target.value;
+			setView(newView);
+			if (newView === 'Community' && communityId) {
+				navigate(`/collection/${communityId}`);
+			}
+		},
+		[navigate, communityId]
+	);
+
+	if (!user) {
+		return <p role="alert">Please log in to view your personal collection.</p>;
+	}
+
+	if (!communityId) {
+		return <p role="alert">Select a community from the community view first.</p>;
+	}
+
+	const mergedItems = items.map((item) => ({
+		...item,
+		status: statuses[item.id] || 'dont_have',
+	}));
+
+	const wantItems = mergedItems.filter((item) => item.status === 'want');
+	const haveItems = mergedItems.filter((item) => item.status === 'have');
+	const dontHaveItems = mergedItems.filter((item) => item.status === 'dont_have');
 
 	const renderItemCard = (item) => (
 		<article key={item.id} className="itemCard" role="listitem">
 			<img
-				src={item.image}
-				alt={`${item.name} image`}
+				src={item.image || '/images/Pokemon.jpeg'}
+				alt={`${item.title} image`}
 				loading="lazy"
 				onError={(e) => {
 					e.target.onerror = null;
@@ -60,16 +106,16 @@ export default function PersonalCollection() {
 				}}
 			/>
 			<div className="VBox">
-				<h3>{item.name}</h3>
+				<h3>{item.title}</h3>
 				<p>{item.description}</p>
-				<fieldset className="radioSelect" aria-label={`Item status for ${item.name}`}>
+				<fieldset className="radioSelect" aria-label={`Item status for ${item.title}`}>
 					<legend className="visually-hidden">Select item status</legend>
 					<div>
-						<input 
-							type="radio" 
+						<input
+							type="radio"
 							id={`want-${item.id}`}
 							name={`status-${item.id}`}
-							value="want" 
+							value="want"
 							checked={item.status === 'want'}
 							onChange={() => handleStatusChange(item.id, 'want')}
 							aria-label="Mark as want"
@@ -77,11 +123,11 @@ export default function PersonalCollection() {
 						<label htmlFor={`want-${item.id}`}>Want</label>
 					</div>
 					<div>
-						<input 
-							type="radio" 
+						<input
+							type="radio"
 							id={`have-${item.id}`}
 							name={`status-${item.id}`}
-							value="have" 
+							value="have"
 							checked={item.status === 'have'}
 							onChange={() => handleStatusChange(item.id, 'have')}
 							aria-label="Mark as have"
@@ -89,16 +135,16 @@ export default function PersonalCollection() {
 						<label htmlFor={`have-${item.id}`}>Have</label>
 					</div>
 					<div>
-						<input 
-							type="radio" 
-							id={`dontWant-${item.id}`}
+						<input
+							type="radio"
+							id={`dont-${item.id}`}
 							name={`status-${item.id}`}
-							value="dontWant" 
-							checked={item.status === 'dontWant'}
-							onChange={() => handleStatusChange(item.id, 'dontWant')}
-							aria-label="Mark as don't want"
+							value="dont_have"
+							checked={item.status === 'dont_have'}
+							onChange={() => handleStatusChange(item.id, 'dont_have')}
+							aria-label="Mark as don't have"
 						/>
-						<label htmlFor={`dontWant-${item.id}`}>Don't Want</label>
+						<label htmlFor={`dont-${item.id}`}>Don't Have</label>
 					</div>
 				</fieldset>
 			</div>
@@ -108,76 +154,62 @@ export default function PersonalCollection() {
 	return (
 		<main role="main">
 			<header>
-				<h1>{communityName}</h1>
+				<h1>{community?.title || 'Personal Collection'}</h1>
 				<div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
 					<label htmlFor="view-select-personal" className="visually-hidden">
 						Select view type
 					</label>
-					<select 
-						name="views" 
+					<select
+						name="views"
 						id="view-select-personal"
-						value={view} 
+						value={view}
 						onChange={handleViewChange}
 						aria-label="Switch between community and personal view"
 					>
 						<option value="Community">Community View</option>
 						<option value="Personal">Personal View</option>
 					</select>
-					{isModerator && (
-						<button 
-							className="moderator" 
-							onClick={handleManageItems}
-							type="button"
-							aria-label="Manage items in community"
-						>
-							Manage Items
-						</button>
-					)}
-					<button 
-						onClick={handleFavorite}
-						type="button"
-						aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-						aria-pressed={isFavorited}
-						style={{ fontWeight: isFavorited ? 'bold' : 'normal' }}
-					>
-						{isFavorited ? '★ Favorite' : '☆ Favorite'}
-					</button>
 				</div>
 			</header>
 
+			{error && (
+				<p role="alert" style={{ color: '#b91c1c' }}>
+					{error}
+				</p>
+			)}
+
 			<section aria-labelledby="want-heading">
-				<h2 id="want-heading">Cards to Catch ({wantItems.length})</h2>
+				<h2 id="want-heading">Wishlist ({wantItems.length})</h2>
 				{wantItems.length === 0 ? (
-					<p>No Pokémon cards on your wishlist yet.</p>
+					<p>No items on your wishlist yet.</p>
 				) : (
-					<div role="list" aria-label="Pokémon cards you want">
+					<div role="list" aria-label="Items you want">
 						{wantItems.map(renderItemCard)}
 					</div>
 				)}
 			</section>
 
 			<section aria-labelledby="have-heading">
-				<h2 id="have-heading">Caught Cards ({haveItems.length})</h2>
+				<h2 id="have-heading">Owned ({haveItems.length})</h2>
 				{haveItems.length === 0 ? (
-					<p>No Pokémon cards in your collection yet.</p>
+					<p>You have not added any items yet.</p>
 				) : (
-					<div role="list" aria-label="Pokémon cards you have">
+					<div role="list" aria-label="Items you have">
 						{haveItems.map(renderItemCard)}
 					</div>
 				)}
 			</section>
 
-			<section aria-labelledby="dont-want-heading">
-				<h2 id="dont-want-heading">Released Cards ({dontWantItems.length})</h2>
-				{dontWantItems.length === 0 ? (
-					<p>No Pokémon cards marked as released.</p>
+			<section aria-labelledby="dont-heading">
+				<h2 id="dont-heading">Still Searching ({dontHaveItems.length})</h2>
+				{dontHaveItems.length === 0 ? (
+					<p>You have marked every item as want or have!</p>
 				) : (
-					<div role="list" aria-label="Pokémon cards you don't want">
-						{dontWantItems.map(renderItemCard)}
+					<div role="list" aria-label="Items you don't have yet">
+						{dontHaveItems.map(renderItemCard)}
 					</div>
 				)}
 			</section>
 		</main>
 	);
 }
-

@@ -126,6 +126,22 @@ section#searchComms > div[role="list"] {
 .modal form textarea { width: 100%; padding: 0.5rem; border-radius: 8px; border: 1px solid #e5e7eb; }
 .modal form textarea { min-height: 96px; resize: vertical; }
 .modal form button { min-width: 88px; }
+.modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.error {
+  color: #b91c1c;
+  margin: 0.5rem 0;
+}
 
 /* Responsive tweaks */
 @media (max-width: 520px) {
