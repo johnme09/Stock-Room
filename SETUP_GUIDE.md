@@ -5,7 +5,7 @@ This guide explains how to get the Stock Room application running with access to
 ## Prerequisites
 
 - Node.js (v14 or higher)
-- npm or yarn
+- npm
 - Git
 
 ## Setup Instructions
@@ -118,7 +118,3 @@ The application will be available at `http://localhost:5173`
 - All team members share the same database
 - Test data created by anyone is visible to everyone
 - Be careful not to delete or modify other team members' test data
-
-## Support
-
-If you encounter issues, contact a team lead or check the main README.md for additional information.
