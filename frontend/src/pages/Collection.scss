@@ -393,6 +393,62 @@ main[role="main"] {
     border: 2px solid #eee;
     margin-bottom: 1.25rem;
   }
+
+.status-controls {
+  margin-top: 1rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  select {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+  }
+}
+
+.add-item-section {
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+
+  .add-item-form {
+    display: grid;
+    gap: 0.75rem;
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5f5;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    button {
+      justify-self: flex-end;
+      padding: 0.6rem 1.5rem;
+      border-radius: 8px;
+      background: #4a5568;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+  }
+}
 }
 
 // Section styling

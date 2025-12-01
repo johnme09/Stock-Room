@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Auth.scss';
+import { useAuth } from '../context/AuthContext.jsx';
 
 // Login page for user authentication
 export default function Login() {
@@ -11,6 +12,7 @@ export default function Login() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState('');
 	const navigate = useNavigate();
+	const { login } = useAuth();
 
 	const handleChange = useCallback((e) => {
 		const { name, value } = e.target;
@@ -47,20 +49,10 @@ export default function Login() {
 		setError('');
 
 		try {
-			// TODO: Replace with actual API call
-			// Example: const response = await fetch('/api/auth/login', { ... });
-			
-			// Simulate API call
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			
-			// TODO: Store token and user data
-			// localStorage.setItem('token', response.data.token);
-			// localStorage.setItem('user', JSON.stringify(response.data.user));
-			
-			// For now, just simulate successful login
-			// In real implementation, you'd use your auth context here
-			
-			// Navigate to home after successful login
+			await login({
+				email: formData.email.trim(),
+				password: formData.password,
+			});
 			navigate('/');
 		} catch (err) {
 			setError(err.message || 'Login failed. Please check your credentials and try again.');

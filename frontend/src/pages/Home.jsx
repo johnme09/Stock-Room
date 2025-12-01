@@ -1,99 +1,133 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import './Home.scss';
+import "./Home.scss";
+import { useAuth } from "../context/AuthContext.jsx";
+import { apiClient } from "../lib/apiClient.js";
 
 // HomePage displays favorited communities and community search functionality
 export default function Home() {
-	const [searchQuery, setSearchQuery] = useState('');
+	const [searchQuery, setSearchQuery] = useState("");
 	const [hasSearched, setHasSearched] = useState(false);
-	const navigate = useNavigate();
+	const [searchResults, setSearchResults] = useState([]);
+	const [favoriteCommunities, setFavoriteCommunities] = useState([]);
+	const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
+	const [isSearching, setIsSearching] = useState(false);
+	const [error, setError] = useState("");
+	const [showCreateModal, setShowCreateModal] = useState(false);
+	const [newComm, setNewComm] = useState({ title: "", description: "", image: "" });
 
-	const handleSearch = useCallback((e) => {
-		e.preventDefault();
+	const navigate = useNavigate();
+	const { user } = useAuth();
+
+	useEffect(() => {
+		if (!user) {
+			setFavoriteCommunities([]);
+			return;
+		}
+
+		setIsLoadingFavorites(true);
+		apiClient
+			.get("/communities?favoriteOnly=true")
+			.then((data) => setFavoriteCommunities(data.communities))
+			.catch((err) => setError(err.message))
+			.finally(() => setIsLoadingFavorites(false));
+	}, [user]);
+
+	const fetchSearchResults = useCallback(async () => {
 		const trimmedQuery = searchQuery.trim();
-		if (trimmedQuery) {
-			setHasSearched(true);
+		if (!trimmedQuery) {
+			setHasSearched(false);
+			setSearchResults([]);
+			return;
+		}
+		setHasSearched(true);
+		setIsSearching(true);
+		try {
+			const data = await apiClient.get(`/communities?q=${encodeURIComponent(trimmedQuery)}`);
+			setSearchResults(data.communities);
+		} catch (err) {
+			setError(err.message);
+		} finally {
+			setIsSearching(false);
 		}
 	}, [searchQuery]);
 
+	const handleSearch = useCallback(
+		(e) => {
+			e.preventDefault();
+			fetchSearchResults();
+		},
+		[fetchSearchResults]
+	);
+
 	const handleSearchInputKeyDown = (e) => {
-		if (e.key === 'Enter') {
+		if (e.key === "Enter") {
 			handleSearch(e);
 		}
 	};
 
 	const handleViewCommunity = (community) => {
-		navigate(`/collection/${community.id}`, { state: { community } });
+		navigate(`/collection/${community.id}`);
 	};
 
 	const handleCreateCommunity = () => {
+		if (!user) {
+			navigate("/login");
+			return;
+		}
 		setShowCreateModal(true);
 	};
 
-	// Modal form state and handlers
-	const [showCreateModal, setShowCreateModal] = useState(false);
-	const [newComm, setNewComm] = useState({ title: '', description: '', image: '' });
-
 	const closeModal = () => {
 		setShowCreateModal(false);
-		setNewComm({ title: '', description: '', image: '' });
+		setNewComm({ title: "", description: "", image: "" });
 	};
 
-	const handleCreateSubmit = (e) => {
+	const handleCreateSubmit = async (e) => {
 		e.preventDefault();
-		const title = newComm.title.trim();
-		if (!title) {
-			alert('Community title is required');
-			return;
-		}
-
-		// create a new community object
-		const nextId = favoriteCommunities && favoriteCommunities.length > 0
-			? Math.max(...favoriteCommunities.map(c => c.id)) + 1
-			: 1;
-			const created = {
-				id: nextId,
-				title,
-				description: newComm.description.trim() || 'No description provided.',
-				// Do not default to the Pokemon logo; keep empty if user didn't provide one
-				image: newComm.image.trim() || ''
+		try {
+			const payload = {
+				title: newComm.title.trim(),
+				description: newComm.description.trim(),
+				image: newComm.image.trim() || undefined,
 			};
-
-		// Add to favorites list (optimistic update)
-		setFavoriteCommunities(prev => [created, ...prev]);
-
-			// close modal and show success message
+			const data = await apiClient.post("/communities", payload);
+			setFavoriteCommunities((prev) => [data.community, ...prev]);
 			closeModal();
-			alert(`Community "${created.title}" has been created successfully!`);
-	};
-
-	// Sample communities data - in real app, this would come from props/context/API
-	const [favoriteCommunities, setFavoriteCommunities] = useState([
-		{
-			id: 1,
-			title: 'Pokemon Cards',
-			description: 'A community for Pokémon card collectors and traders.',
-			image: '/images/Pokemon.jpeg'
+		} catch (err) {
+			setError(err.message);
 		}
-	]);
-
-	const searchResults = hasSearched && searchQuery.trim() ? favoriteCommunities : [];
+	};
 
 	return (
 		<main role="main">
 			<section id="FavoriteComms" aria-labelledby="fav-heading">
-				<h2 id="fav-heading">Favorited Communities</h2>
-				<button 
-					type="button" 
-					id="create-community-btn"
-					onClick={handleCreateCommunity}
-					aria-label="Create a new community"
-				>
-					Create your own community
-				</button>
+				<div className="section-header">
+					<h2 id="fav-heading">Favorited Communities</h2>
+					<button
+						type="button"
+						id="create-community-btn"
+						onClick={handleCreateCommunity}
+						aria-label="Create a new community"
+					>
+						Create your own community
+					</button>
+				</div>
 
-				{favoriteCommunities.length === 0 ? (
-					<p className="default-text" aria-live="polite">no favorite communities</p>
+				{error && (
+					<p className="error" role="alert">
+						{error}
+					</p>
+				)}
+
+				{!user ? (
+					<p className="default-text">Log in to track your favorite communities.</p>
+				) : isLoadingFavorites ? (
+					<p className="default-text">Loading favorites...</p>
+				) : favoriteCommunities.length === 0 ? (
+					<p className="default-text" aria-live="polite">
+						No favorite communities yet.
+					</p>
 				) : (
 					<div className="communities-grid" role="list" aria-label="Favorited communities">
 						{favoriteCommunities.map((community) => (
@@ -128,21 +162,37 @@ export default function Home() {
 					</div>
 				)}
 
-				{/* Create Community Modal */}
 				{showCreateModal && (
 					<div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Create community form">
 						<div className="modal">
 							<h3>Create a Community</h3>
 							<form onSubmit={handleCreateSubmit}>
 								<label htmlFor="new-title">Title</label>
-								<input id="new-title" value={newComm.title} onChange={e => setNewComm(prev => ({ ...prev, title: e.target.value }))} required />
+								<input
+									id="new-title"
+									value={newComm.title}
+									onChange={(e) => setNewComm((prev) => ({ ...prev, title: e.target.value }))}
+									required
+								/>
 								<label htmlFor="new-desc">Description</label>
-								<textarea id="new-desc" value={newComm.description} onChange={e => setNewComm(prev => ({ ...prev, description: e.target.value }))} />
+								<textarea
+									id="new-desc"
+									value={newComm.description}
+									onChange={(e) => setNewComm((prev) => ({ ...prev, description: e.target.value }))}
+								/>
 								<label htmlFor="new-image">Image URL (optional)</label>
-								<input id="new-image" value={newComm.image} onChange={e => setNewComm(prev => ({ ...prev, image: e.target.value }))} />
-								<div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', justifyContent: 'flex-end' }}>
-									<button type="button" onClick={closeModal}>Cancel</button>
-									<button type="submit" className="community-action">Create</button>
+								<input
+									id="new-image"
+									value={newComm.image}
+									onChange={(e) => setNewComm((prev) => ({ ...prev, image: e.target.value }))}
+								/>
+								<div className="modal-actions">
+									<button type="button" onClick={closeModal}>
+										Cancel
+									</button>
+									<button type="submit" className="community-action">
+										Create
+									</button>
 								</div>
 							</form>
 						</div>
@@ -153,36 +203,22 @@ export default function Home() {
 			<section id="searchComms" aria-labelledby="search-heading">
 				<h2 id="search-heading">Find Communities:</h2>
 
-				<form 
-					className="search-bar" 
-					onSubmit={handleSearch}
-					role="search"
-					aria-label="Search communities"
-				>
+				<form className="search-bar" onSubmit={handleSearch} role="search" aria-label="Search communities">
 					<label htmlFor="community-search" className="visually-hidden">
 						Search for communities
 					</label>
-					<input 
-						type="search" 
-						id="community-search" 
-						name="community-search" 
-						placeholder="Search communities..." 
+					<input
+						type="search"
+						id="community-search"
+						name="community-search"
+						placeholder="Search communities..."
 						value={searchQuery}
-						onChange={(e) => {
-							setSearchQuery(e.target.value);
-							if (!e.target.value.trim()) {
-								setHasSearched(false);
-							}
-						}}
+						onChange={(e) => setSearchQuery(e.target.value)}
 						onKeyDown={handleSearchInputKeyDown}
 						aria-describedby="search-hint"
 					/>
-					<button 
-						type="submit" 
-						id="community-search-btn"
-						aria-label="Submit search"
-					>
-						Search
+					<button type="submit" id="community-search-btn" aria-label="Submit search">
+						{isSearching ? "Searching..." : "Search"}
 					</button>
 					<span id="search-hint" className="visually-hidden">
 						Press Enter or click Search to find communities
@@ -190,7 +226,9 @@ export default function Home() {
 				</form>
 
 				{!hasSearched ? (
-					<p className="search-default-text" aria-live="polite">no search results</p>
+					<p className="search-default-text" aria-live="polite">
+						Start typing to find a community.
+					</p>
 				) : searchResults.length === 0 ? (
 					<p className="search-default-text" aria-live="polite">
 						No communities found for "{searchQuery}"
@@ -200,11 +238,7 @@ export default function Home() {
 						{searchResults.map((community) => (
 							<article key={community.id} className="community" role="listitem">
 								{community.image ? (
-									<img
-										src={community.image}
-										alt={`${community.title} community image`}
-										loading="lazy"
-									/>
+									<img src={community.image} alt={`${community.title} community image`} loading="lazy" />
 								) : (
 									<div className="community-placeholder" aria-hidden>
 										No image
@@ -215,7 +249,7 @@ export default function Home() {
 								<button
 									type="button"
 									className="community-action"
-									onClick={handleViewCommunity}
+									onClick={() => handleViewCommunity(community)}
 									aria-label={`View ${community.title} community`}
 								>
 									View Community
