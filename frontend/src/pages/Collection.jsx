@@ -225,16 +225,16 @@ export default function Collection() {
 						<textarea
 							id="item-desc"
 							value={newItem.description}
-							onChange={(e) => setNewItem((prev) => ({ ...prev, description: e.target.value }))}
-						/>
-						<label htmlFor="item-image">Image URL</label>
-						<input
-							id="item-image"
-							value={newItem.image}
-							onChange={(e) => setNewItem((prev) => ({ ...prev, image: e.target.value }))}
-						/>
-						<button type="submit" disabled={isSavingItem}>
-							{isSavingItem ? 'Saving...' : 'Add Item'}
+						onChange={(e) => setNewItem((prev) => ({ ...prev, description: e.target.value }))}
+					/>
+					<label htmlFor="item-image">Image URL</label>
+					<input
+						id="item-image"
+						value={newItem.image}
+						onChange={(e) => setNewItem((prev) => ({ ...prev, image: e.target.value }))}
+					/>
+					<button type="submit" disabled={isSavingItem}>
+						{isSavingItem ? 'Saving...' : 'Add Item'}
 						</button>
 					</form>
 				</section>
