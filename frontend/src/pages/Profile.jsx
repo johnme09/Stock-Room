@@ -32,7 +32,7 @@ export default function Profile() {
 
 	return (
 		<main role="main">
-			<ProfileCard username={user.username} bio={user.about} />
+			<ProfileCard username={user.username} bio={user.about} userProfilePic={user.image} />
 
 			<section id="user-communities" aria-labelledby="communities-heading">
 				<h2 id="communities-heading">Your Favorite Communities</h2>

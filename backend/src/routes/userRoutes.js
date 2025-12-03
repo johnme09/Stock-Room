@@ -25,12 +25,16 @@ router.get(
 router.patch(
   "/me",
   auth(),
-  [body("about").optional().isLength({ max: 500 }).withMessage("About is too long")],
+  [body("about").optional().isLength({ max: 500 }).withMessage("About is too long"),
+   body("image").optional().isURL()],
   validateRequest,
   asyncHandler(async (req, res) => {
     const updates = {};
     if (typeof req.body.about === "string") {
       updates.about = req.body.about;
+    }
+    if (typeof req.body.image === "string") {
+      updates.image = req.body.image;
     }
     const user = await User.findByIdAndUpdate(req.user.id, updates, {
       new: true,
