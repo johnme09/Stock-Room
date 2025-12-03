@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "init:users": "node src/scripts/initializeUserImages.js",
     "lint": "echo \"No backend linter configured\""
   },
   "keywords": [],

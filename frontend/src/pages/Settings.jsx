@@ -6,7 +6,7 @@ import { apiClient } from '../lib/apiClient.js';
 // Settings page allows user to change account settings
 export default function Settings() {
 	const { user, refreshProfile } = useAuth();
-	const [formState, setFormState] = useState({ username: '', email: '', about: '', privacy: 'private' });
+	const [formState, setFormState] = useState({ username: '', email: '', about: '', pfpImageUrl: '', privacy: 'private' });
 	const [isSaving, setIsSaving] = useState(false);
 	const [saveMessage, setSaveMessage] = useState('');
 	const aboutTextareaRef = useRef(null);
@@ -18,6 +18,7 @@ export default function Settings() {
 				username: user.username,
 				email: user.email,
 				about: user.about || '',
+				pfpImageUrl: user.image || '',
 			}));
 		}
 	}, [user]);
@@ -26,6 +27,21 @@ export default function Settings() {
 		setFormState((prev) => ({ ...prev, [field]: value }));
 		setSaveMessage('');
 	}, []);
+
+	const onSaveProfileImage = useCallback(async () => {
+		setIsSaving(true);
+		setSaveMessage('');
+		try {
+			await apiClient.patch('/users/me', { image: formState.pfpImageUrl });
+			await refreshProfile();
+			setSaveMessage('Profile picture saved successfully');
+		} catch (err) {
+			setSaveMessage(err.message);
+		} finally {
+			setIsSaving(false);
+			setTimeout(() => setSaveMessage(''), 3000);
+		}
+	}, [formState.pfpImageUrl, refreshProfile]);
 
 	const onSaveAbout = useCallback(async () => {
 		setIsSaving(true);
@@ -112,6 +128,37 @@ export default function Settings() {
 						onClick={onSaveAbout}
 						disabled={isSaving}
 						aria-label="Save about me information"
+					>
+						{isSaving ? 'Saving...' : 'Save'}
+					</button>
+				</div>
+			</section>
+
+			<section id="profile-image-section" className="settings-card" aria-labelledby="profile-image-heading">
+				<h2 id="profile-image-heading">Profile Picture</h2>
+				<label htmlFor="pfp-image-url" className="visually-hidden">
+					Profile picture URL
+				</label>
+				<input
+					id="pfp-image-url"
+					type="url"
+					placeholder="Enter profile picture URL..."
+					value={formState.pfpImageUrl}
+					onChange={(e) => updateField('pfpImageUrl', e.target.value)}
+					aria-describedby="pfp-hint"
+					style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', border: '1px solid #cbd5f5' }}
+				/>
+				<div id="pfp-hint" style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
+					Provide a valid image URL
+				</div>
+				<div>
+					<button
+						type="button"
+						id="save-pfp"
+						onClick={onSaveProfileImage}
+						disabled={isSaving}
+						aria-label="Save profile picture"
+						style={{ marginTop: '0.75rem', padding: '0.6rem 1.5rem', background: '#626262', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
 					>
 						{isSaving ? 'Saving...' : 'Save'}
 					</button>
