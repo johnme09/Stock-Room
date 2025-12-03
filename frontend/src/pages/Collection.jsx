@@ -227,7 +227,6 @@ export default function Collection() {
 							value={newItem.description}
 						onChange={(e) => setNewItem((prev) => ({ ...prev, description: e.target.value }))}
 					/>
-					{/* also here */}
 					<label htmlFor="item-image">Image URL</label>
 					<input
 						id="item-image"
