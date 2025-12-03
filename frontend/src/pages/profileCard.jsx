@@ -11,7 +11,6 @@ export default function ProfileCard({
 	bio = DEFAULT_BIO,
 	userProfilePic = DEFAULT_PROFILE_PIC,
 }) {
-    // TODO: Once database is set, set to use database values with props as fallback.
 	const handleImageError = (e) => {
 		// Fallback to default image if provided image fails to load
 		e.target.src = DEFAULT_PROFILE_PIC;
