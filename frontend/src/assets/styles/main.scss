@@ -2,18 +2,38 @@
 @use 'community-grid';
 
 // Applies basic styles globally
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: $font-family-main;
-  background-color: $main-background-color;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
+  background-attachment: fixed;
   color: $text-color-dark;
   margin: 0;
   padding: 0;
+  line-height: $line-height-normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1;
+  text-rendering: optimizeLegibility;
 }
 
 // Add spacing to all page content except header
 .page {
   padding: $margin-large;
   box-sizing: border-box;
+}
+
+// Main content wrapper
+main[role="main"] {
+  min-height: calc(100vh - 80px);
+  padding-top: 2rem;
 }
 
 // Visually hidden but accessible to screen readers
@@ -27,4 +47,30 @@ body {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+// Global button improvements
+button {
+  font-family: inherit;
+  transition: all $transition-base;
+  
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+// Global input improvements
+input, textarea, select {
+  font-family: inherit;
+  transition: all $transition-base;
+  
+  &:focus {
+    outline: none;
+  }
+  
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
 }

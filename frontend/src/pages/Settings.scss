@@ -1,88 +1,183 @@
+@use "../assets/styles/variables" as *;
+
 /* Settings page styles to match boxed/grid look from other pages */
 
 .settings-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem 1.5rem;
+  padding: 3rem 2rem;
+
+  header {
+    margin-bottom: 3rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 3px solid $border-color;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 200px;
+      height: 3px;
+      background: linear-gradient(90deg, $primary-color 0%, $secondary-color 100%);
+    }
+
+    h1 {
+      font-size: $font-size-title;
+      font-weight: $font-weight-bold;
+      color: $text-color-dark;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+  }
 }
 
 .settings-card {
-  background: #fff;
-  border: 1px solid rgba(0,0,0,0.06);
-  border-radius: 14px;
-  padding: 1.25rem;
-  box-shadow: 0 6px 18px rgba(17,24,39,0.04);
-  margin-bottom: 1.5rem;
-}
+  background: $main-background-color;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-large;
+  padding: 2rem;
+  box-shadow: $box-shadow;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
 
-.settings-card h2 {
-  margin-top: 0;
-  margin-bottom: 0.75rem;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, $primary-color 0%, $secondary-color 100%);
+  }
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: $font-size-subtitle;
+    font-weight: $font-weight-bold;
+    color: $text-color-dark;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid $border-color;
+  }
 }
 
 .setting-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  background: $background-light;
+  border-radius: $border-radius-medium;
+  border: 1px solid $border-color-light;
 }
 
 .setting-row label {
-  min-width: 110px;
-  font-weight: 600;
+  min-width: 120px;
+  font-weight: $font-weight-semibold;
+  color: $text-color-dark;
+  font-size: $font-size-small;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .current-value {
   flex: 1 1 auto;
-  color: #374151;
+  color: $text-color-medium;
+  font-size: $font-size-body;
+  font-weight: $font-weight-medium;
 }
 
 .change-btn {
-  background: #626262;
-  color: #fff;
+  background: linear-gradient(135deg, $primary-color 0%, $primary-color-hover 100%);
+  color: $text-color-white;
   border: none;
-  padding: 0.45rem 0.7rem;
-  border-radius: 8px;
+  padding: 0.6rem 1.25rem;
+  border-radius: $border-radius-medium;
   cursor: pointer;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+  box-shadow: $box-shadow-sm;
+  font-size: $font-size-small;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $box-shadow;
+    background: linear-gradient(135deg, $primary-color-hover 0%, $primary-color 100%);
+  }
 }
 
-.change-btn:hover { background: #4f4f4f; }
-
-#save-about {
-  background: #626262;
-  color: #fff;
+#save-about,
+#save-pfp {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-color-hover 100%);
+  color: $text-color-white;
   border: none;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  border-radius: $border-radius-medium;
   cursor: pointer;
-  margin-top: 0.5rem;
+  margin-top: 1rem;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+  box-shadow: $box-shadow-sm;
+  font-size: $font-size-body;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: $box-shadow;
+    background: linear-gradient(135deg, $primary-color-hover 0%, $primary-color 100%);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
 }
 
-#save-about:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-textarea#about-text {
+textarea#about-text,
+input#pfp-image-url {
   width: 100%;
-  min-height: 96px;
-  padding: 0.6rem;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  min-height: 120px;
+  padding: 0.875rem;
+  border-radius: $border-radius-medium;
+  border: 2px solid $border-color;
   resize: vertical;
-  font-size: 1rem;
+  font-size: $font-size-body;
+  font-family: inherit;
+  background: $main-background-color;
+  transition: all $transition-base;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+}
+
+input#pfp-image-url {
+  min-height: auto;
 }
 
 .danger {
-  background: #ef4444;
-  color: #fff;
+  background: linear-gradient(135deg, $error-color 0%, darken($error-color, 10%) 100%);
+  color: $text-color-white;
   border: none;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  border-radius: $border-radius-medium;
   cursor: pointer;
-}
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+  box-shadow: $box-shadow-sm;
 
-.danger:hover { background: #dc2626; }
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $box-shadow;
+    background: linear-gradient(135deg, darken($error-color, 10%) 0%, $error-color 100%);
+  }
+}
 
 @media (max-width: 640px) {
   .setting-row {

@@ -1,26 +1,55 @@
+@use "../assets/styles/variables" as *;
+
 .forum-section {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background-color: var(--bg-secondary, #f8f9fa);
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin-top: 4rem;
+  padding: 3rem;
+  background: linear-gradient(135deg, $main-background-color 0%, $background-light 100%);
+  border-radius: $border-radius-large;
+  box-shadow: $box-shadow-md;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, $primary-color 0%, $secondary-color 50%, $tertiary-color 100%);
+  }
 
   h2 {
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-    color: var(--text-primary, #333);
+    margin-bottom: 2rem;
+    font-size: $font-size-subtitle;
+    font-weight: $font-weight-bold;
+    color: $text-color-dark;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid $border-color;
   }
 
   .error-message {
-    color: #dc3545;
-    background-color: #f8d7da;
-    padding: 0.5rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
+    color: $error-color;
+    background: linear-gradient(135deg, rgba($error-color, 0.1) 0%, rgba($error-color, 0.05) 100%);
+    padding: 1rem;
+    border-radius: $border-radius-medium;
+    margin-bottom: 1.5rem;
+    border: 2px solid rgba($error-color, 0.3);
+    border-left: 4px solid $error-color;
+    font-weight: $font-weight-medium;
   }
 
   .forum-post-form {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    background: $main-background-color;
+    border-radius: $border-radius-large;
+    border: 2px solid $border-color;
+    box-shadow: $box-shadow-sm;
     
     .input-group {
       display: flex;
@@ -28,43 +57,60 @@
       align-items: center;
 
       .user-avatar-small {
-        width: 40px;
-        height: 40px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         object-fit: cover;
+        border: 2px solid $border-color-light;
+        box-shadow: $box-shadow-sm;
+        flex-shrink: 0;
       }
 
       input {
         flex: 1;
-        padding: 0.75rem;
-        border: 1px solid #ddd;
-        border-radius: 20px;
-        font-size: 1rem;
-        transition: border-color 0.2s;
+        padding: 0.875rem 1.25rem;
+        border: 2px solid $border-color;
+        border-radius: $border-radius-full;
+        font-size: $font-size-body;
+        font-family: inherit;
+        background: $main-background-color;
+        transition: all $transition-base;
+
+        &::placeholder {
+          color: $text-color-light;
+        }
 
         &:focus {
           outline: none;
-          border-color: var(--primary-color, #007bff);
+          border-color: $primary-color;
+          box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
         }
       }
 
       button {
-        padding: 0.5rem 1.5rem;
-        background-color: var(--primary-color, #007bff);
-        color: white;
+        padding: 0.875rem 2rem;
+        background: linear-gradient(135deg, $primary-color 0%, $primary-color-hover 100%);
+        color: $text-color-white;
         border: none;
-        border-radius: 20px;
+        border-radius: $border-radius-full;
         cursor: pointer;
-        font-weight: 600;
-        transition: background-color 0.2s;
+        font-weight: $font-weight-semibold;
+        transition: all $transition-base;
+        box-shadow: $box-shadow-sm;
+        font-size: $font-size-body;
+        white-space: nowrap;
 
         &:hover:not(:disabled) {
-          background-color: var(--primary-hover, #0056b3);
+          transform: translateY(-2px);
+          box-shadow: $box-shadow;
+          background: linear-gradient(135deg, $primary-color-hover 0%, $primary-color 100%);
         }
 
         &:disabled {
-          background-color: #ccc;
+          background: $text-color-light;
           cursor: not-allowed;
+          transform: none;
+          opacity: 0.6;
         }
       }
     }
@@ -72,82 +118,119 @@
 
   .login-prompt {
     text-align: center;
-    color: #666;
-    margin-bottom: 1rem;
+    color: $text-color-medium;
+    margin-bottom: 1.5rem;
     font-style: italic;
+    padding: 1.5rem;
+    background: $background-light;
+    border-radius: $border-radius-medium;
+    border: 2px dashed $border-color;
   }
 
   .forum-posts {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
 
     .no-posts {
       text-align: center;
-      color: #666;
-      padding: 2rem;
+      color: $text-color-medium;
+      padding: 3rem;
+      background: $background-light;
+      border-radius: $border-radius-medium;
+      border: 2px dashed $border-color;
+      font-style: italic;
     }
 
     .forum-post {
-      background: white;
-      padding: 1rem;
-      border-radius: 8px;
-      border: 1px solid #eee;
+      background: $main-background-color;
+      padding: 1.75rem;
+      border-radius: $border-radius-large;
+      border: 1px solid $border-color;
+      box-shadow: $box-shadow-sm;
+      transition: all $transition-base;
+
+      &:hover {
+        box-shadow: $box-shadow;
+        border-color: $primary-color;
+        transform: translateY(-2px);
+      }
 
       .post-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid $border-color-light;
 
         .author-info {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 1rem;
 
           .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             object-fit: cover;
+            border: 2px solid $border-color-light;
+            box-shadow: $box-shadow-sm;
+            transition: all $transition-base;
+
+            &:hover {
+              border-color: $primary-color;
+              transform: scale(1.05);
+              box-shadow: $box-shadow;
+            }
           }
 
           .author-details {
             display: flex;
             flex-direction: column;
+            gap: 0.25rem;
 
             .author-name {
-              font-weight: 600;
-              color: var(--text-primary, #333);
+              font-weight: $font-weight-bold;
+              color: $text-color-dark;
+              font-size: $font-size-body;
             }
 
             .post-date {
-              font-size: 0.8rem;
-              color: #888;
+              font-size: $font-size-small;
+              color: $text-color-light;
+              font-weight: $font-weight-normal;
             }
           }
         }
 
         .delete-post-btn {
-          background: none;
-          border: none;
-          color: #dc3545;
+          background: linear-gradient(135deg, rgba($error-color, 0.1) 0%, rgba($error-color, 0.05) 100%);
+          border: 1px solid rgba($error-color, 0.3);
+          color: $error-color;
           cursor: pointer;
-          font-size: 0.9rem;
-          padding: 0.25rem 0.5rem;
-          border-radius: 4px;
+          font-size: $font-size-small;
+          padding: 0.5rem 1rem;
+          border-radius: $border-radius-medium;
+          font-weight: $font-weight-semibold;
+          transition: all $transition-base;
 
           &:hover {
-            background-color: #fff5f5;
+            background: linear-gradient(135deg, $error-color 0%, darken($error-color, 10%) 100%);
+            color: $text-color-white;
+            transform: translateY(-1px);
+            box-shadow: $box-shadow-sm;
           }
         }
       }
 
       .post-content {
-        margin-left: 3.25rem; /* Align with text, not avatar */
-        color: var(--text-secondary, #444);
-        line-height: 1.5;
-        white-space: pre-wrap; /* Preserve line breaks */
+        margin-left: calc(48px + 1rem + 0.5rem); /* Align with text, accounting for avatar and gap */
+        color: $text-color-medium;
+        line-height: $line-height-relaxed;
+        white-space: pre-wrap;
+        font-size: $font-size-body;
+        padding-top: 0.5rem;
       }
     }
   }

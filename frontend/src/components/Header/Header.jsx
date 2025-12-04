@@ -150,7 +150,29 @@ const Header = () => {
 
       {user && (
         <div className="header__right" aria-live="polite">
-          <span>Hi, {user.username}</span>
+          <button
+            className="profile-avatar-button"
+            onClick={() => handleNavigation("/profile")}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleNavigation("/profile");
+              }
+            }}
+            aria-label={`Go to ${user.username}'s profile`}
+            type="button"
+          >
+            <img
+              src={user.image || '/images/Profile-picture.png'}
+              alt={`${user.username}'s profile`}
+              className="profile-avatar"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/images/Profile-picture.png';
+              }}
+            />
+            <span className="profile-username">Hi, {user.username}</span>
+          </button>
         </div>
       )}
     </header>

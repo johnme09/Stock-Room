@@ -241,9 +241,13 @@ export default function Collection() {
 				</section>
 			)}
 
-			<section aria-label="Community items">
+			<section aria-label="Community items" className="items-section">
 				{items.length === 0 ? (
-					<p>No items in this community yet.</p>
+					<div className="empty-state">
+						<div className="empty-state-icon">📦</div>
+						<h3>No items yet</h3>
+						<p>This community doesn't have any items yet. Be the first to add one!</p>
+					</div>
 				) : (
 					<div role="list" aria-label="Community items">
 						{items.map((item) => (
