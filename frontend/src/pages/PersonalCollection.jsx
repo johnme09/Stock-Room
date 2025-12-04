@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import './Collection.scss';
 import { apiClient } from '../lib/apiClient.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -15,14 +15,27 @@ export default function PersonalCollection() {
 	const [error, setError] = useState('');
 	const navigate = useNavigate();
 	const { user } = useAuth();
+	const location = useLocation();
+		// If a `User` object or numeric user id is passed via navigation state, use that instead of default user.
+		// Formatting fixer for displayUser.
+		const navUser = location.state?.User;
+		const displayUser = navUser
+				? // normalize numeric id to an object with `id` so downstream code can use `displayUser.id`
+					typeof navUser === 'object' && navUser !== null
+						? navUser
+						: { id: navUser }
+				: user;
 
 	const loadCommunityData = useCallback(async () => {
 		if (!communityId) return;
 		try {
+			// Prevent late responses from overwriting newer data
+			const reqId = ++latestCommunityRequestRef.current;
 			const [{ community: communityData }, { items: itemList }] = await Promise.all([
 				apiClient.get(`/communities/${communityId}`),
 				apiClient.get(`/communities/${communityId}/items`),
 			]);
+			if (reqId !== latestCommunityRequestRef.current) return;
 			setCommunity(communityData);
 			setItems(itemList);
 		} catch (err) {
@@ -30,10 +43,19 @@ export default function PersonalCollection() {
 		}
 	}, [communityId]);
 
+	const latestStatusRequestRef = useRef(0);
+	const latestCommunityRequestRef = useRef(0);
+
 	const loadStatuses = useCallback(async () => {
-		if (!communityId || !user) return;
+		if (!communityId || !displayUser) return;
+		// increment token to prevent late responses.
+		const reqId = ++latestStatusRequestRef.current;
 		try {
-			const data = await apiClient.get(`/user-items?communityId=${communityId}`);
+			// Request statuses for the profile user. Backend should accept userId query param.
+			const userIdParam = displayUser?.id ? `&userId=${displayUser.id}` : '';
+			const data = await apiClient.get(`/user-items?communityId=${communityId}${userIdParam}`);
+			// ignore late responses
+			if (reqId !== latestStatusRequestRef.current) return;
 			const map = {};
 			data.userItems.forEach(({ item, status }) => {
 				if (item) {
@@ -42,9 +64,10 @@ export default function PersonalCollection() {
 			});
 			setStatuses(map);
 		} catch (err) {
-			setError(err.message);
+			// only set error if this is the latest request
+			if (reqId === latestStatusRequestRef.current) setError(err.message);
 		}
-	}, [communityId, user]);
+	}, [communityId, displayUser]);
 
 	useEffect(() => {
 		loadCommunityData();
@@ -77,8 +100,8 @@ export default function PersonalCollection() {
 		[navigate, communityId]
 	);
 
-	if (!user) {
-		return <p role="alert">Please log in to view your personal collection.</p>;
+	if (!displayUser) {
+		return <p role="alert">Please log in to view this personal collection.</p>;
 	}
 
 	if (!communityId) {
@@ -94,6 +117,12 @@ export default function PersonalCollection() {
 	const haveItems = mergedItems.filter((item) => item.status === 'have');
 	const dontHaveItems = mergedItems.filter((item) => item.status === 'dont_have');
 
+	const statusLabel = (s) => {
+		if (s === 'want') return 'Want';
+		if (s === 'have') return 'Have';
+		return "Don't Have";
+	};
+
 	const renderItemCard = (item) => (
 		<article key={item.id} className="itemCard" role="listitem">
 			<img
@@ -108,45 +137,54 @@ export default function PersonalCollection() {
 			<div className="VBox">
 				<h3>{item.title}</h3>
 				<p>{item.description}</p>
-				<fieldset className="radioSelect" aria-label={`Item status for ${item.title}`}>
-					<legend className="visually-hidden">Select item status</legend>
-					<div>
-						<input
-							type="radio"
-							id={`want-${item.id}`}
-							name={`status-${item.id}`}
-							value="want"
-							checked={item.status === 'want'}
-							onChange={() => handleStatusChange(item.id, 'want')}
-							aria-label="Mark as want"
-						/>
-						<label htmlFor={`want-${item.id}`}>Want</label>
+				{//Added system for displaying options for own collection, text for anyone else.
+				}
+				{displayUser && user && displayUser.id === user.id ? (
+					<fieldset className="radioSelect" aria-label={`Item status for ${item.title}`}>
+						<legend className="visually-hidden">Select item status</legend>
+						<div>
+							<input
+								type="radio"
+								id={`want-${item.id}`}
+								name={`status-${item.id}`}
+								value="want"
+								checked={item.status === 'want'}
+								onChange={() => handleStatusChange(item.id, 'want')}
+								aria-label="Mark as want"
+							/>
+							<label htmlFor={`want-${item.id}`}>Want</label>
+						</div>
+						<div>
+							<input
+								type="radio"
+								id={`have-${item.id}`}
+								name={`status-${item.id}`}
+								value="have"
+								checked={item.status === 'have'}
+								onChange={() => handleStatusChange(item.id, 'have')}
+								aria-label="Mark as have"
+							/>
+							<label htmlFor={`have-${item.id}`}>Have</label>
+						</div>
+						<div>
+							<input
+								type="radio"
+								id={`dont-${item.id}`}
+								name={`status-${item.id}`}
+								value="dont_have"
+								checked={item.status === 'dont_have'}
+								onChange={() => handleStatusChange(item.id, 'dont_have')}
+								aria-label="Mark as don't have"
+							/>
+							<label htmlFor={`dont-${item.id}`}>Don't Have</label>
+						</div>
+					</fieldset>
+				) : (
+					<div className="readonly-status">
+						<label htmlFor={`status-text-${item.id}`} className="visually-hidden">Status</label>
+						<input id={`status-text-${item.id}`} type="text" readOnly value={statusLabel(item.status)} />
 					</div>
-					<div>
-						<input
-							type="radio"
-							id={`have-${item.id}`}
-							name={`status-${item.id}`}
-							value="have"
-							checked={item.status === 'have'}
-							onChange={() => handleStatusChange(item.id, 'have')}
-							aria-label="Mark as have"
-						/>
-						<label htmlFor={`have-${item.id}`}>Have</label>
-					</div>
-					<div>
-						<input
-							type="radio"
-							id={`dont-${item.id}`}
-							name={`status-${item.id}`}
-							value="dont_have"
-							checked={item.status === 'dont_have'}
-							onChange={() => handleStatusChange(item.id, 'dont_have')}
-							aria-label="Mark as don't have"
-						/>
-						<label htmlFor={`dont-${item.id}`}>Don't Have</label>
-					</div>
-				</fieldset>
+				)}
 			</div>
 		</article>
 	);

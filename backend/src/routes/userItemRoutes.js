@@ -14,10 +14,17 @@ const statusOptions = ["have", "want", "dont_have"];
 router.get(
   "/",
   auth(),
-  [query("communityId").optional().isMongoId()],
+  [
+    query("communityId").optional().isMongoId(),
+    // optional userId query allows requesting another user's public/readable collection
+    query("userId").optional().isMongoId(),
+  ],
   validateRequest,
   asyncHandler(async (req, res) => {
-    const filters = { userId: req.user.id };
+    // By default, return statuses for the authenticated user.
+    // If a `userId` parameter is provided, use that.
+    const requestedUserId = req.query.userId || req.user.id;
+    const filters = { userId: requestedUserId };
     if (req.query.communityId) {
       filters.communityId = req.query.communityId;
     }

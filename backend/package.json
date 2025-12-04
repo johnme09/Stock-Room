@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "Stock Room API server",
   "main": "src/server.js",
+  "type": "module",
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "init:users": "node src/scripts/initializeUserImages.js",
-    "lint": "echo \"No backend linter configured\""
+    "lint": "echo \"No backend linter configured\"",
+    "test:unit": "mocha"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +25,10 @@
     "morgan": "^1.10.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "mocha": "^10.2.0",
+    "chai": "^4.3.7",
+    "sinon": "^15.0.0",
+    "supertest": "^6.4.0"
   }
 }
