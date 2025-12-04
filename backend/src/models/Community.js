@@ -22,6 +22,15 @@ const communitySchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    moderators: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );

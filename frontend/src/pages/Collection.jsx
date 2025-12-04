@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import './Collection.scss';
 import { apiClient } from '../lib/apiClient.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import Forum from '../components/Forum.jsx';
 
 // Collection page displays community view of items with forum
 export default function Collection() {
@@ -225,16 +226,16 @@ export default function Collection() {
 						<textarea
 							id="item-desc"
 							value={newItem.description}
-						onChange={(e) => setNewItem((prev) => ({ ...prev, description: e.target.value }))}
-					/>
-					<label htmlFor="item-image">Image URL</label>
-					<input
-						id="item-image"
-						value={newItem.image}
-						onChange={(e) => setNewItem((prev) => ({ ...prev, image: e.target.value }))}
-					/>
-					<button type="submit" disabled={isSavingItem}>
-						{isSavingItem ? 'Saving...' : 'Add Item'}
+							onChange={(e) => setNewItem((prev) => ({ ...prev, description: e.target.value }))}
+						/>
+						<label htmlFor="item-image">Image URL</label>
+						<input
+							id="item-image"
+							value={newItem.image}
+							onChange={(e) => setNewItem((prev) => ({ ...prev, image: e.target.value }))}
+						/>
+						<button type="submit" disabled={isSavingItem}>
+							{isSavingItem ? 'Saving...' : 'Add Item'}
 						</button>
 					</form>
 				</section>
@@ -285,36 +286,14 @@ export default function Collection() {
 				)}
 			</section>
 
-			<section aria-label="Community forum">
-				<h2>Community Forum</h2>
-				<form
-					onSubmit={(e) => {
-						e.preventDefault();
-						alert('Forum posting is coming soon!');
-						setForumPost('');
-					}}
-					aria-label="Post to community forum"
-				>
-					<label htmlFor="collectionForum">Want to share something?</label>
-					<input
-						type="text"
-						id="collectionForum"
-						value={forumPost}
-						onChange={(e) => setForumPost(e.target.value)}
-						required
-						minLength={3}
-						maxLength={500}
-						placeholder="Share your thoughts..."
-						aria-describedby="forum-hint"
-					/>
-					<span id="forum-hint" className="visually-hidden">
-						Enter at least 3 characters to post
-					</span>
-					<button type="submit" aria-label="Submit forum post">
-						Post
-					</button>
-				</form>
-			</section>
+
+
+			<Forum
+				communityId={communityId}
+				isOwner={user?.id === community?.ownerId}
+				user={user}
+			/>
+
 		</main>
 	);
 }
