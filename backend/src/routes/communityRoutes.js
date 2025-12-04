@@ -171,5 +171,135 @@ router.post(
   })
 );
 
+import ForumPost from "../models/ForumPost.js";
+
+// ... existing code ...
+
+router.get(
+  "/:communityId/posts",
+  [param("communityId").isMongoId()],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const community = await Community.findById(req.params.communityId);
+    if (!community) {
+      throw new HttpError(404, "Community not found");
+    }
+    const posts = await ForumPost.find({ communityId: req.params.communityId })
+      .sort({ createdAt: -1 })
+      .populate("authorId", "username image");
+    res.json({ posts });
+  })
+);
+
+router.post(
+  "/:communityId/posts",
+  auth(),
+  [
+    param("communityId").isMongoId(),
+    body("content").isLength({ min: 1, max: 500 }).withMessage("Content is required"),
+  ],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const community = await Community.findById(req.params.communityId);
+    if (!community) {
+      throw new HttpError(404, "Community not found");
+    }
+
+    const post = await ForumPost.create({
+      communityId: community.id,
+      content: req.body.content,
+      authorId: req.user.id,
+    });
+
+    // Populate author info for immediate display
+    await post.populate("authorId", "username image");
+
+    res.status(201).json({ post });
+  })
+);
+
+router.delete(
+  "/:communityId/posts/:postId",
+  auth(),
+  [param("communityId").isMongoId(), param("postId").isMongoId()],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const community = await Community.findById(req.params.communityId);
+    if (!community) {
+      throw new HttpError(404, "Community not found");
+    }
+
+    const post = await ForumPost.findOne({
+      _id: req.params.postId,
+      communityId: community.id,
+    });
+
+    if (!post) {
+      throw new HttpError(404, "Post not found");
+    }
+
+    // Allow deletion if user is community owner OR post author
+    if (
+      community.ownerId.toString() !== req.user.id &&
+      post.authorId.toString() !== req.user.id
+    ) {
+      throw new HttpError(403, "You do not have permission to delete this post");
+    }
+
+    await post.deleteOne();
+
+    res.status(204).end();
+  })
+);
+
+import User from "../models/User.js";
+
+// Helper to check if user is owner or moderator
+const ensureOwnerOrMod = (community, userId) => {
+  const isOwner = community.ownerId.toString() === userId.toString();
+  const isMod = community.moderators?.some((mod) => mod.toString() === userId.toString());
+  if (!isOwner && !isMod) {
+    throw new HttpError(403, "Only the community owner or moderators can perform this action");
+  }
+};
+
+router.put(
+  "/:communityId/moderators",
+  auth(),
+  [
+    param("communityId").isMongoId(),
+    body("username").isString().notEmpty(),
+    body("action").isIn(["add", "remove"]),
+  ],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const community = await Community.findById(req.params.communityId);
+    if (!community) {
+      throw new HttpError(404, "Community not found");
+    }
+
+    ensureOwner(community, req.user.id);
+
+    const user = await User.findOne({ username: req.body.username });
+    if (!user) {
+      throw new HttpError(404, "User not found");
+    }
+
+    if (req.body.action === "add") {
+      if (community.moderators.includes(user.id)) {
+        throw new HttpError(400, "User is already a moderator");
+      }
+      community.moderators.push(user.id);
+    } else {
+      community.moderators = community.moderators.filter(
+        (id) => id.toString() !== user.id.toString()
+      );
+    }
+
+    await community.save();
+    res.json({ community });
+  })
+);
+
 export default router;
 
