@@ -6,6 +6,11 @@ import "./assets/styles/main.scss"; // Imports global styles
 import { AuthProvider } from './context/AuthContext.jsx';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+const port = process.env.PORT || 8080;
+App.listen(port, () => {
+  console.log('Hello world listening on port', port);
+});
+
 root.render(
   <React.StrictMode>
     <BrowserRouter>
