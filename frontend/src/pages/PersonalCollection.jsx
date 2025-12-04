@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import './Collection.scss';
 import { apiClient } from '../lib/apiClient.js';
@@ -29,10 +29,13 @@ export default function PersonalCollection() {
 	const loadCommunityData = useCallback(async () => {
 		if (!communityId) return;
 		try {
+			// Prevent late responses from overwriting newer data
+			const reqId = ++latestCommunityRequestRef.current;
 			const [{ community: communityData }, { items: itemList }] = await Promise.all([
 				apiClient.get(`/communities/${communityId}`),
 				apiClient.get(`/communities/${communityId}/items`),
 			]);
+			if (reqId !== latestCommunityRequestRef.current) return;
 			setCommunity(communityData);
 			setItems(itemList);
 		} catch (err) {
@@ -40,12 +43,19 @@ export default function PersonalCollection() {
 		}
 	}, [communityId]);
 
+	const latestStatusRequestRef = useRef(0);
+	const latestCommunityRequestRef = useRef(0);
+
 	const loadStatuses = useCallback(async () => {
 		if (!communityId || !displayUser) return;
+		// increment token to prevent late responses.
+		const reqId = ++latestStatusRequestRef.current;
 		try {
 			// Request statuses for the profile user. Backend should accept userId query param.
 			const userIdParam = displayUser?.id ? `&userId=${displayUser.id}` : '';
 			const data = await apiClient.get(`/user-items?communityId=${communityId}${userIdParam}`);
+			// ignore late responses
+			if (reqId !== latestStatusRequestRef.current) return;
 			const map = {};
 			data.userItems.forEach(({ item, status }) => {
 				if (item) {
@@ -54,7 +64,8 @@ export default function PersonalCollection() {
 			});
 			setStatuses(map);
 		} catch (err) {
-			setError(err.message);
+			// only set error if this is the latest request
+			if (reqId === latestStatusRequestRef.current) setError(err.message);
 		}
 	}, [communityId, displayUser]);
 
