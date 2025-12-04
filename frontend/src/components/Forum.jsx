@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/apiClient';
 import './Forum.scss';
 
 export default function Forum({ communityId, isOwner, user }) {
+    const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
     const [newPostContent, setNewPostContent] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -100,11 +102,18 @@ export default function Forum({ communityId, isOwner, user }) {
                         <article key={post.id} className="forum-post" role="listitem">
                             <div className="post-header">
                                 <div className="author-info">
+                                    {//Clickable User pfp so we can access collection pages.
+                                    }
                                     <img
                                         src={post.authorId?.image || '/images/Profile-picture.png'}
                                         alt={post.authorId?.username || 'Unknown User'}
                                         className="user-avatar"
                                         onError={(e) => { e.target.onerror = null; e.target.src = '/images/Profile-picture.png'; }}
+                                        role="link"
+                                        tabIndex={0}
+                                        onClick={() => navigate(`/collection/personal?communityId=${communityId}`, { state: { User: post.authorId } })}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/collection/personal?communityId=${communityId}`, { state: { User: post.authorId } }); }}
+                                        style={{ cursor: 'pointer' }}
                                     />
                                     <div className="author-details">
                                         <span className="author-name">{post.authorId?.username || 'Unknown User'}</span>
