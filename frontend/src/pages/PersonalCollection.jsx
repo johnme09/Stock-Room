@@ -16,8 +16,15 @@ export default function PersonalCollection() {
 	const navigate = useNavigate();
 	const { user } = useAuth();
 	const location = useLocation();
-	// If a `User` object is passed via navigation state, use that, if not, use your own user.
-	const displayUser = location.state?.User || user;
+		// If a `User` object or numeric user id is passed via navigation state, use that instead of default user.
+		// Formatting fixer for displayUser.
+		const navUser = location.state?.User;
+		const displayUser = navUser
+				? // normalize numeric id to an object with `id` so downstream code can use `displayUser.id`
+					typeof navUser === 'object' && navUser !== null
+						? navUser
+						: { id: navUser }
+				: user;
 
 	const loadCommunityData = useCallback(async () => {
 		if (!communityId) return;
