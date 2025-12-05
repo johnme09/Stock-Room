@@ -12,15 +12,13 @@ html {
 
 body {
   font-family: $font-family-main;
-  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
-  background-attachment: fixed;
+  background-color: $background-light;
   color: $text-color-dark;
   margin: 0;
   padding: 0;
   line-height: $line-height-normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: "kern" 1;
   text-rendering: optimizeLegibility;
 }
 
@@ -53,7 +51,7 @@ main[role="main"] {
 button {
   font-family: inherit;
   transition: all $transition-base;
-  
+
   &:focus-visible {
     outline: 2px solid $primary-color;
     outline-offset: 2px;
@@ -61,14 +59,16 @@ button {
 }
 
 // Global input improvements
-input, textarea, select {
+input,
+textarea,
+select {
   font-family: inherit;
   transition: all $transition-base;
-  
+
   &:focus {
     outline: none;
   }
-  
+
   &:focus-visible {
     outline: 2px solid $primary-color;
     outline-offset: 2px;

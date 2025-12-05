@@ -1,26 +1,35 @@
-// Theme Colors
-$primary-color: #085E05C5;
+// Theme Colors - Original Green Palette
+$primary-color: #085E05;
 $primary-color-hover: #064a04;
 $secondary-color: #c9e493;
 $tertiary-color: #637AB9;
 $quaternary-color: #31326F;
+
+// Backgrounds
 $main-background-color: #ffffff;
-$background-light: #f8f9fa;
-$background-subtle: #f5f7fa;
-$text-color-dark: #1a1a1a;
-$text-color-medium: #4a5568;
-$text-color-light: #718096;
+$background-light: #f8fafc; // Slate 50
+$background-subtle: #f1f5f9; // Slate 100
+$background-dark: #1e293b; // Slate 800
+
+// Text
+$text-color-dark: #0f172a; // Slate 900
+$text-color-medium: #475569; // Slate 600
+$text-color-light: #94a3b8; // Slate 400
 $text-color-white: #ffffff;
-$border-color: #e2e8f0;
-$border-color-light: #f0f0f0;
-$error-color: #dc3545;
-$success-color: #10b981;
-$warning-color: #f59e0b;
+
+// Status
+$error-color: #ef4444; // Red 500
+$success-color: #10b981; // Emerald 500
+$warning-color: #f59e0b; // Amber 500
+
+// Borders
+$border-color: #e2e8f0; // Slate 200
+$border-color-light: #f1f5f9; // Slate 100
 
 // Typography
-$font-family-main: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-$font-size-title: 2.25rem;
-$font-size-subtitle: 1.5rem;
+$font-family-main: 'Inter', system-ui, -apple-system, sans-serif;
+$font-size-title: 2.5rem;
+$font-size-subtitle: 1.75rem;
 $font-size-body: 1rem;
 $font-size-small: 0.875rem;
 $font-weight-normal: 400;
@@ -40,20 +49,20 @@ $margin-medium: 1.5rem;
 $margin-large: 3rem;
 
 // Borders
-$border-radius-small: 6px;
-$border-radius-medium: 10px;
-$border-radius-large: 16px;
-$border-radius-xl: 20px;
+$border-radius-small: 0.375rem;
+$border-radius-medium: 0.5rem;
+$border-radius-large: 1rem;
+$border-radius-xl: 1.5rem;
 $border-radius-full: 9999px;
 
 // Shadows
-$box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-$box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-$box-shadow-md: 0 6px 18px rgba(0, 0, 0, 0.12);
-$box-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
-$box-shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+$box-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+$box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+$box-shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+$box-shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+$box-shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 
 // Transitions
-$transition-fast: 0.15s ease;
-$transition-base: 0.2s ease;
-$transition-slow: 0.3s ease;
+$transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);

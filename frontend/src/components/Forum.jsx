@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/apiClient';
 import './Forum.scss';
 
-export default function Forum({ communityId, isOwner, user }) {
+export default function Forum({ communityId, isOwner, isModerator, user }) {
     const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
     const [newPostContent, setNewPostContent] = useState('');
@@ -120,7 +120,7 @@ export default function Forum({ communityId, isOwner, user }) {
                                         <span className="post-date">{new Date(post.createdAt).toLocaleString()}</span>
                                     </div>
                                 </div>
-                                {(isOwner || user?.id === post.authorId?.id || user?.id === post.authorId) && (
+                                {(isOwner || isModerator || user?.id === post.authorId?.id || user?.id === post.authorId) && (
                                     <button
                                         onClick={() => handleDeletePost(post.id)}
                                         className="delete-post-btn"

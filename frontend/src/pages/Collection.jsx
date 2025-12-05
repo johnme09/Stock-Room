@@ -18,8 +18,14 @@ export default function Collection() {
 	const [statuses, setStatuses] = useState({});
 	const [newItem, setNewItem] = useState({ title: '', description: '', image: '' });
 	const [isSavingItem, setIsSavingItem] = useState(false);
+	const [showAddItem, setShowAddItem] = useState(false);
+	const [modUsername, setModUsername] = useState('');
 	const { user, refreshProfile } = useAuth();
 	const navigate = useNavigate();
+
+	const isOwner = user?.id === community?.ownerId;
+	const isModerator = community?.moderators?.some((mod) => (mod._id || mod.id) === user?.id);
+	const canManage = isOwner || isModerator;
 
 	const loadCommunity = useCallback(async () => {
 		if (!communityId) return;
@@ -122,10 +128,68 @@ export default function Collection() {
 			const data = await apiClient.post(`/communities/${communityId}/items`, payload);
 			setItems((prev) => [data.item, ...prev]);
 			setNewItem({ title: '', description: '', image: '' });
+			setShowAddItem(false);
 		} catch (err) {
 			setError(err.message);
 		} finally {
 			setIsSavingItem(false);
+		}
+	};
+
+	const handleAddModerator = async (e) => {
+		e.preventDefault();
+		if (!modUsername.trim()) return;
+		try {
+			const { community: updatedCommunity } = await apiClient.put(
+				`/communities/${communityId}/moderators`,
+				{ username: modUsername, action: 'add' }
+			);
+			setCommunity(updatedCommunity);
+			setModUsername('');
+		} catch (err) {
+			alert(err.message);
+		}
+	};
+
+	const handleRemoveModerator = async (userId) => {
+		if (!window.confirm('Remove this moderator?')) return;
+		try {
+			const { community: updatedCommunity } = await apiClient.put(
+				`/communities/${communityId}/moderators`,
+				{ username: userId, action: 'remove' } // Note: Backend expects username for add, but let's check if it handles ID for remove or if we need username.
+				// Wait, backend implementation:
+				// const user = await User.findOne({ username: req.body.username });
+				// So we MUST send username.
+			);
+			// Actually, for remove, the backend implementation I saw earlier uses `req.body.username` to find the user first.
+			// So I need to pass the username of the moderator I want to remove.
+			setCommunity(updatedCommunity);
+		} catch (err) {
+			alert(err.message);
+		}
+	};
+
+	// Correction for handleRemoveModerator:
+	// The backend expects `username` in the body.
+	// So I should pass the username to this function.
+
+	const handleDeleteCommunity = async () => {
+		if (!window.confirm('Are you sure you want to delete this community? This cannot be undone.')) return;
+		try {
+			await apiClient.delete(`/communities/${communityId}`);
+			navigate('/');
+		} catch (err) {
+			alert(err.message);
+		}
+	};
+
+	const handleDeleteItem = async (itemId) => {
+		if (!window.confirm('Delete this item?')) return;
+		try {
+			await apiClient.delete(`/items/${itemId}`);
+			setItems((prev) => prev.filter((item) => item.id !== itemId));
+		} catch (err) {
+			alert(err.message);
 		}
 	};
 
@@ -211,7 +275,58 @@ export default function Collection() {
 				</div>
 			</header>
 
-			{user?.id === community?.ownerId && (
+			{isOwner && (
+				<section className="moderator-section" style={{ maxWidth: '800px', margin: '0 auto 2rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}>
+					<h3>Manage Moderators</h3>
+					<div className="moderator-list" style={{ marginBottom: '1rem' }}>
+						{community?.moderators?.map((mod) => (
+							<div key={mod._id || mod.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+								<span>@{mod.username}</span>
+								<button
+									onClick={() => handleRemoveModerator(mod.username)}
+									style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', background: '#ff4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+								>
+									Remove
+								</button>
+							</div>
+						))}
+						{(!community?.moderators || community.moderators.length === 0) && <p>No moderators yet.</p>}
+					</div>
+					<form onSubmit={handleAddModerator} style={{ display: 'flex', gap: '0.5rem' }}>
+						<input
+							value={modUsername}
+							onChange={(e) => setModUsername(e.target.value)}
+							placeholder="Enter username to add"
+							style={{ padding: '0.5rem', flex: 1 }}
+						/>
+						<button type="submit" style={{ padding: '0.5rem 1rem', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+							Add Moderator
+						</button>
+					</form>
+					<div style={{ marginTop: '2rem', borderTop: '1px solid #ddd', paddingTop: '1rem' }}>
+						<button
+							onClick={handleDeleteCommunity}
+							className="danger-button"
+							style={{ background: '#dc3545', color: 'white', padding: '0.75rem 1.5rem', border: 'none', borderRadius: '4px', cursor: 'pointer', width: '100%' }}
+						>
+							Delete Community
+						</button>
+					</div>
+				</section>
+			)}
+
+			{canManage && (
+				<div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+					<button
+						onClick={() => setShowAddItem(!showAddItem)}
+						style={{ padding: '0.75rem 1.5rem', background: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem' }}
+					>
+						{showAddItem ? 'Cancel Adding Item' : 'Add New Item'}
+					</button>
+				</div>
+			)}
+
+			{canManage && showAddItem && (
 				<section aria-label="Add new item" className="add-item-section">
 					<h2>Add New Item</h2>
 					<form onSubmit={handleAddItem} className="add-item-form">
@@ -265,8 +380,25 @@ export default function Collection() {
 									<div className="card-header">
 										<h3>{item.title}</h3>
 										<div className="user-info">
-											<span className="username">Added by {item.createdBy ? '@owner' : 'community'}</span>
+											<span className="username">
+												Added by {item.createdBy === community.ownerId ? `@${community.ownerId?.username || 'owner'}` : (item.createdBy?.username ? `@${item.createdBy.username}` : 'community')}
+												{/* Note: item.createdBy might be an ID or object depending on backend population. 
+												    The backend itemRoutes/communityRoutes don't seem to populate createdBy for items.
+												    I should probably update the backend to populate createdBy for items too.
+												    For now, I'll assume it might not be populated and handle it gracefully or update backend.
+												*/}
+											</span>
 										</div>
+										{canManage && (
+											<button
+												onClick={() => handleDeleteItem(item.id)}
+												className="delete-item-btn"
+												style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', fontSize: '1.2rem' }}
+												aria-label="Delete item"
+											>
+												🗑️
+											</button>
+										)}
 									</div>
 									<p>{item.description}</p>
 									{user && (
@@ -294,10 +426,11 @@ export default function Collection() {
 
 			<Forum
 				communityId={communityId}
-				isOwner={user?.id === community?.ownerId}
+				isOwner={isOwner}
+				isModerator={isModerator}
 				user={user}
 			/>
 
-		</main>
+		</main >
 	);
 }

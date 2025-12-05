@@ -1,4 +1,5 @@
 @use "../assets/styles/variables" as *;
+@use "sass:color";
 
 .forum-section {
   margin-top: 4rem;
@@ -50,7 +51,7 @@
     border-radius: $border-radius-large;
     border: 2px solid $border-color;
     box-shadow: $box-shadow-sm;
-    
+
     .input-group {
       display: flex;
       gap: 1rem;
@@ -216,7 +217,7 @@
           transition: all $transition-base;
 
           &:hover {
-            background: linear-gradient(135deg, $error-color 0%, darken($error-color, 10%) 100%);
+            background: linear-gradient(135deg, $error-color 0%, color.adjust($error-color, $lightness: -10%) 100%);
             color: $text-color-white;
             transform: translateY(-1px);
             box-shadow: $box-shadow-sm;
@@ -225,7 +226,8 @@
       }
 
       .post-content {
-        margin-left: calc(48px + 1rem + 0.5rem); /* Align with text, accounting for avatar and gap */
+        margin-left: calc(48px + 1rem + 0.5rem);
+        /* Align with text, accounting for avatar and gap */
         color: $text-color-medium;
         line-height: $line-height-relaxed;
         white-space: pre-wrap;

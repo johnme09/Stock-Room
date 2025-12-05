@@ -36,6 +36,12 @@ router.get(
       }
       filters._id = { $in: req.user.favorites };
     }
+    if (req.query.owned) {
+      if (!req.user) {
+        throw new HttpError(401, "Authentication required to filter owned communities");
+      }
+      filters.ownerId = req.user.id;
+    }
 
     const communities = await Community.find(filters).sort({ createdAt: -1 });
     res.json({ communities });
@@ -68,7 +74,10 @@ router.get(
   [param("communityId").isMongoId().withMessage("Invalid community id")],
   validateRequest,
   asyncHandler(async (req, res) => {
-    const community = await Community.findById(req.params.communityId);
+    const community = await Community.findById(req.params.communityId).populate(
+      "moderators",
+      "username"
+    );
     if (!community) {
       throw new HttpError(404, "Community not found");
     }
@@ -135,9 +144,9 @@ router.get(
     if (!community) {
       throw new HttpError(404, "Community not found");
     }
-    const items = await Item.find({ communityId: req.params.communityId }).sort({
-      createdAt: -1,
-    });
+    const items = await Item.find({ communityId: req.params.communityId })
+      .sort({ createdAt: -1 })
+      .populate("createdBy", "username");
     res.json({ items });
   })
 );
@@ -157,7 +166,7 @@ router.post(
     if (!community) {
       throw new HttpError(404, "Community not found");
     }
-    ensureOwner(community, req.user.id);
+    ensureOwnerOrMod(community, req.user.id);
 
     const item = await Item.create({
       communityId: community.id,
@@ -166,6 +175,8 @@ router.post(
       image: req.body.image ?? "",
       createdBy: req.user.id,
     });
+
+    await item.populate("createdBy", "username");
 
     res.status(201).json({ item });
   })
@@ -238,11 +249,12 @@ router.delete(
       throw new HttpError(404, "Post not found");
     }
 
-    // Allow deletion if user is community owner OR post author
-    if (
-      community.ownerId.toString() !== req.user.id &&
-      post.authorId.toString() !== req.user.id
-    ) {
+    // Allow deletion if user is community owner OR post author OR moderator
+    const isOwner = community.ownerId.toString() === req.user.id;
+    const isAuthor = post.authorId.toString() === req.user.id;
+    const isMod = community.moderators.some((mod) => mod.toString() === req.user.id);
+
+    if (!isOwner && !isAuthor && !isMod) {
       throw new HttpError(403, "You do not have permission to delete this post");
     }
 

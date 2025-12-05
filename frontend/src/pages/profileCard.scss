@@ -82,7 +82,8 @@
 }
 
 // Profile page section styling
-section#user-communities {
+section#user-communities,
+section#owned-communities {
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
@@ -117,7 +118,7 @@ section#user-communities {
     font-weight: $font-weight-medium;
   }
 
-  > p:not([role="alert"]) {
+  >p:not([role="alert"]) {
     text-align: center;
     color: $text-color-medium;
     padding: 3rem;
@@ -129,7 +130,8 @@ section#user-communities {
 }
 
 // Communities grid container
-div[role="list"][aria-label="User communities"] {
+div[role="list"][aria-label="User communities"],
+div[role="list"][aria-label="Owned communities"] {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2.5rem;
