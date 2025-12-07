@@ -13,18 +13,28 @@ export default function PersonalCollection() {
 	const [statuses, setStatuses] = useState({});
 	const [view, setView] = useState('Personal');
 	const [error, setError] = useState('');
+
 	const navigate = useNavigate();
 	const { user } = useAuth();
+	const [failedImages, setFailedImages] = useState(new Set());
+
+	const handleImageError = (id) => {
+		setFailedImages((prev) => {
+			const newSet = new Set(prev);
+			newSet.add(id);
+			return newSet;
+		});
+	};
 	const location = useLocation();
-		// If a `User` object or numeric user id is passed via navigation state, use that instead of default user.
-		// Formatting fixer for displayUser.
-		const navUser = location.state?.User;
-		const displayUser = navUser
-				? // normalize numeric id to an object with `id` so downstream code can use `displayUser.id`
-					typeof navUser === 'object' && navUser !== null
-						? navUser
-						: { id: navUser }
-				: user;
+	// If a `User` object or numeric user id is passed via navigation state, use that instead of default user.
+	// Formatting fixer for displayUser.
+	const navUser = location.state?.User;
+	const displayUser = navUser
+		? // normalize numeric id to an object with `id` so downstream code can use `displayUser.id`
+		typeof navUser === 'object' && navUser !== null
+			? navUser
+			: { id: navUser }
+		: user;
 
 	const loadCommunityData = useCallback(async () => {
 		if (!communityId) return;
@@ -125,15 +135,18 @@ export default function PersonalCollection() {
 
 	const renderItemCard = (item) => (
 		<article key={item.id} className="itemCard" role="listitem">
-			<img
-				src={item.image || '/images/Pokemon.jpeg'}
-				alt={`${item.title} image`}
-				loading="lazy"
-				onError={(e) => {
-					e.target.onerror = null;
-					e.target.src = '/images/Pikachu.jpeg';
-				}}
-			/>
+			{item.image && !failedImages.has(item.id) ? (
+				<img
+					src={item.image}
+					alt={`${item.title} image`}
+					loading="lazy"
+					onError={() => handleImageError(item.id)}
+				/>
+			) : (
+				<div className="item-image placeholder">
+					<div className="placeholder-text">{item.title?.[0] ?? '?'}</div>
+				</div>
+			)}
 			<div className="VBox">
 				<h3>{item.title}</h3>
 				<p>{item.description}</p>
@@ -191,63 +204,126 @@ export default function PersonalCollection() {
 
 	return (
 		<main role="main">
-			<header>
-				<h1>{community?.title || 'Personal Collection'}</h1>
-				<div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-					<label htmlFor="view-select-personal" className="visually-hidden">
-						Select view type
-					</label>
-					<select
-						name="views"
-						id="view-select-personal"
-						value={view}
-						onChange={handleViewChange}
-						aria-label="Switch between community and personal view"
-					>
-						<option value="Community">Community View</option>
-						<option value="Personal">Personal View</option>
-					</select>
+			<header className="community-header">
+				<div className="header-content">
+					{community?.image ? (
+						<div className="community-image">
+							<img src={community.image} alt={`${community.title} banner`} />
+						</div>
+					) : (
+						<div className="community-image placeholder">
+							<div className="placeholder-text">{community?.title?.[0] ?? '?'}</div>
+						</div>
+					)}
+
+					<div className="community-info">
+						<h1 className="community-title">
+							{displayUser && user && displayUser.id === user.id ? 'My Collection' : `${displayUser?.username || 'User'}'s Collection`}
+						</h1>
+						<p className="community-description">
+							{community?.title} Community
+						</p>
+
+						<div className="community-stats">
+							<div className="stat">
+								<div className="number">{haveItems.length}</div>
+								<div className="label">Owned</div>
+							</div>
+							<div className="stat">
+								<div className="number">{wantItems.length}</div>
+								<div className="label">Wishlist</div>
+							</div>
+						</div>
+
+						<div className="community-actions">
+							<select
+								name="views"
+								id="view-select-personal"
+								value={view}
+								onChange={handleViewChange}
+								aria-label="Switch between community and personal view"
+								className="view-selector"
+							>
+								<option value="Community">Community View</option>
+								<option value="Personal">Personal View</option>
+							</select>
+						</div>
+					</div>
 				</div>
 			</header>
 
 			{error && (
-				<p role="alert" style={{ color: '#b91c1c' }}>
-					{error}
-				</p>
+				<div style={{ maxWidth: '1200px', margin: '0 auto 2rem', padding: '0 2rem' }}>
+					<p role="alert" style={{ color: '#dc3545', padding: '1rem', background: '#f8d7da', borderRadius: '8px', border: '1px solid #f5c6cb' }}>
+						{error}
+					</p>
+				</div>
 			)}
 
-			<section aria-labelledby="want-heading">
-				<h2 id="want-heading">Wishlist ({wantItems.length})</h2>
-				{wantItems.length === 0 ? (
-					<p>No items on your wishlist yet.</p>
-				) : (
-					<div role="list" aria-label="Items you want">
-						{wantItems.map(renderItemCard)}
-					</div>
-				)}
-			</section>
+			<div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 2rem' }}>
+				<section aria-labelledby="want-heading" style={{ marginBottom: '3rem' }}>
+					<h2 id="want-heading" style={{
+						fontSize: '1.75rem',
+						borderBottom: '2px solid #e2e8f0',
+						paddingBottom: '0.5rem',
+						marginBottom: '1.5rem',
+						color: '#2d3748'
+					}}>
+						Wishlist <span style={{ fontSize: '1rem', color: '#718096', fontWeight: 'normal' }}>({wantItems.length})</span>
+					</h2>
+					{wantItems.length === 0 ? (
+						<div className="empty-state" style={{ padding: '3rem 1rem', background: '#f8f9fa', borderRadius: '8px', textAlign: 'center' }}>
+							<p>No items on your wishlist yet.</p>
+						</div>
+					) : (
+						<div role="list" aria-label="Items you want" className="items-grid">
+							{wantItems.map(renderItemCard)}
+						</div>
+					)}
+				</section>
 
-			<section aria-labelledby="have-heading">
-				<h2 id="have-heading">Owned ({haveItems.length})</h2>
-				{haveItems.length === 0 ? (
-					<p>You have not added any items yet.</p>
-				) : (
-					<div role="list" aria-label="Items you have">
-						{haveItems.map(renderItemCard)}
-					</div>
-				)}
-			</section>
+				<section aria-labelledby="have-heading" style={{ marginBottom: '3rem' }}>
+					<h2 id="have-heading" style={{
+						fontSize: '1.75rem',
+						borderBottom: '2px solid #e2e8f0',
+						paddingBottom: '0.5rem',
+						marginBottom: '1.5rem',
+						color: '#2d3748'
+					}}>
+						Owned <span style={{ fontSize: '1rem', color: '#718096', fontWeight: 'normal' }}>({haveItems.length})</span>
+					</h2>
+					{haveItems.length === 0 ? (
+						<div className="empty-state" style={{ padding: '3rem 1rem', background: '#f8f9fa', borderRadius: '8px', textAlign: 'center' }}>
+							<p>You have not added any items yet.</p>
+						</div>
+					) : (
+						<div role="list" aria-label="Items you have" className="items-grid">
+							{haveItems.map(renderItemCard)}
+						</div>
+					)}
+				</section>
 
-			<section aria-labelledby="dont-heading">
-				<h2 id="dont-heading">Still Searching ({dontHaveItems.length})</h2>
-				{dontHaveItems.length === 0 ? (
-					<p>You have marked every item as want or have!</p>
-				) : (
-					<div role="list" aria-label="Items you don't have yet">
-						{dontHaveItems.map(renderItemCard)}
-					</div>
-				)}
-			</section>
+				<section aria-labelledby="dont-heading" style={{ marginBottom: '3rem' }}>
+					<h2 id="dont-heading" style={{
+						fontSize: '1.75rem',
+						borderBottom: '2px solid #e2e8f0',
+						paddingBottom: '0.5rem',
+						marginBottom: '1.5rem',
+						color: '#2d3748'
+					}}>
+						Still Searching <span style={{ fontSize: '1rem', color: '#718096', fontWeight: 'normal' }}>({dontHaveItems.length})</span>
+					</h2>
+					{dontHaveItems.length === 0 ? (
+						<div className="empty-state" style={{ padding: '3rem 1rem', background: '#f8f9fa', borderRadius: '8px', textAlign: 'center' }}>
+							<p>You have marked every item as want or have!</p>
+						</div>
+					) : (
+						<div role="list" aria-label="Items you don't have yet" className="items-grid">
+							{dontHaveItems.map(renderItemCard)}
+						</div>
+					)}
+				</section>
+			</div>
 		</main>
 	);
 }

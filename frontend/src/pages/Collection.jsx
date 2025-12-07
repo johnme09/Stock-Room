@@ -22,6 +22,15 @@ export default function Collection() {
 	const [modUsername, setModUsername] = useState('');
 	const { user, refreshProfile } = useAuth();
 	const navigate = useNavigate();
+	const [failedImages, setFailedImages] = useState(new Set());
+
+	const handleImageError = (id) => {
+		setFailedImages((prev) => {
+			const newSet = new Set(prev);
+			newSet.add(id);
+			return newSet;
+		});
+	};
 
 	const isOwner = user?.id === community?.ownerId;
 	const isModerator = community?.moderators?.some((mod) => (mod._id || mod.id) === user?.id);
@@ -238,9 +247,18 @@ export default function Collection() {
 						</div>
 
 						<div className="community-actions">
-							<button className="join-button" disabled>
-								Join Community
-							</button>
+							<select
+								name="views"
+								id="view-select"
+								value={view}
+								onChange={handleViewChange}
+								aria-label="Switch between community and personal view"
+								className="view-selector"
+							>
+								<option value="Community">Community View</option>
+								<option value="Personal">Personal View</option>
+							</select>
+
 							<button
 								className={`favorite-button ${isFavorited ? 'active' : ''}`}
 								onClick={handleFavorite}
@@ -252,27 +270,7 @@ export default function Collection() {
 					</div>
 				</div>
 
-				<div className="community-nav">
-					<select
-						name="views"
-						id="view-select"
-						value={view}
-						onChange={handleViewChange}
-						aria-label="Switch between community and personal view"
-					>
-						<option value="Community">Community View</option>
-						<option value="Personal">Personal View</option>
-					</select>
-					<button
-						onClick={handleFavorite}
-						type="button"
-						aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-						aria-pressed={isFavorited}
-						style={{ fontWeight: isFavorited ? 'bold' : 'normal' }}
-					>
-						{isFavorited ? '★ Favorite' : '☆ Favorite'}
-					</button>
-				</div>
+
 			</header>
 
 			{isOwner && (
@@ -364,29 +362,27 @@ export default function Collection() {
 						<p>This community doesn't have any items yet. Be the first to add one!</p>
 					</div>
 				) : (
-					<div role="list" aria-label="Community items">
+					<div role="list" aria-label="Community items" className="items-grid">
 						{items.map((item) => (
 							<article key={item.id} className="itemCard" role="listitem">
-								<img
-									src={item.image || '/images/Pokemon.jpeg'}
-									alt={`${item.title} image`}
-									loading="lazy"
-									onError={(e) => {
-										e.target.onerror = null;
-										e.target.src = '/images/Pikachu.jpeg';
-									}}
-								/>
+								{item.image && !failedImages.has(item.id) ? (
+									<img
+										src={item.image}
+										alt={`${item.title} image`}
+										loading="lazy"
+										onError={() => handleImageError(item.id)}
+									/>
+								) : (
+									<div className="item-image placeholder">
+										<div className="placeholder-text">{item.title?.[0] ?? '?'}</div>
+									</div>
+								)}
 								<div className="VBox">
 									<div className="card-header">
 										<h3>{item.title}</h3>
 										<div className="user-info">
 											<span className="username">
 												Added by {item.createdBy === community.ownerId ? `@${community.ownerId?.username || 'owner'}` : (item.createdBy?.username ? `@${item.createdBy.username}` : 'community')}
-												{/* Note: item.createdBy might be an ID or object depending on backend population. 
-												    The backend itemRoutes/communityRoutes don't seem to populate createdBy for items.
-												    I should probably update the backend to populate createdBy for items too.
-												    For now, I'll assume it might not be populated and handle it gracefully or update backend.
-												*/}
 											</span>
 										</div>
 										{canManage && (
@@ -402,18 +398,45 @@ export default function Collection() {
 									</div>
 									<p>{item.description}</p>
 									{user && (
-										<div className="status-controls">
-											<label htmlFor={`status-${item.id}`}>Status</label>
-											<select
-												id={`status-${item.id}`}
-												value={statuses[item.id] || 'dont_have'}
-												onChange={(e) => handleStatusChange(item.id, e.target.value)}
-											>
-												<option value="have">Have</option>
-												<option value="want">Want</option>
-												<option value="dont_have">Don't have</option>
-											</select>
-										</div>
+										<fieldset className="radioSelect" aria-label={`Item status for ${item.title}`}>
+											<legend className="visually-hidden">Select item status</legend>
+											<div>
+												<input
+													type="radio"
+													id={`want-${item.id}`}
+													name={`status-${item.id}`}
+													value="want"
+													checked={statuses[item.id] === 'want'}
+													onChange={() => handleStatusChange(item.id, 'want')}
+													aria-label="Mark as want"
+												/>
+												<label htmlFor={`want-${item.id}`}>Want</label>
+											</div>
+											<div>
+												<input
+													type="radio"
+													id={`have-${item.id}`}
+													name={`status-${item.id}`}
+													value="have"
+													checked={statuses[item.id] === 'have'}
+													onChange={() => handleStatusChange(item.id, 'have')}
+													aria-label="Mark as have"
+												/>
+												<label htmlFor={`have-${item.id}`}>Have</label>
+											</div>
+											<div>
+												<input
+													type="radio"
+													id={`dont-${item.id}`}
+													name={`status-${item.id}`}
+													value="dont_have"
+													checked={!statuses[item.id] || statuses[item.id] === 'dont_have'}
+													onChange={() => handleStatusChange(item.id, 'dont_have')}
+													aria-label="Mark as don't have"
+												/>
+												<label htmlFor={`dont-${item.id}`}>Don't Have</label>
+											</div>
+										</fieldset>
 									)}
 								</div>
 							</article>

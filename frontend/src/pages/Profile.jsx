@@ -11,6 +11,15 @@ export default function Profile() {
 	const [favoriteCommunities, setFavoriteCommunities] = useState([]);
 	const [ownedCommunities, setOwnedCommunities] = useState([]);
 	const [error, setError] = useState('');
+	const [failedImages, setFailedImages] = useState(new Set());
+
+	const handleImageError = (id) => {
+		setFailedImages((prev) => {
+			const newSet = new Set(prev);
+			newSet.add(id);
+			return newSet;
+		});
+	};
 
 	useEffect(() => {
 		if (!user) return;
@@ -56,15 +65,18 @@ export default function Profile() {
 					<div role="list" aria-label="Owned communities">
 						{ownedCommunities.map((community) => (
 							<article key={community.id} className="community" role="listitem">
-								<img
-									src={community.image || '/images/Pokemon.jpeg'}
-									alt={`${community.title} community image`}
-									loading="lazy"
-									onError={(e) => {
-										e.target.onerror = null;
-										e.target.src = '/images/Pokemon.jpeg';
-									}}
-								/>
+								{community.image && !failedImages.has(community.id) ? (
+									<img
+										src={community.image}
+										alt={`${community.title} community image`}
+										loading="lazy"
+										onError={() => handleImageError(community.id)}
+									/>
+								) : (
+									<div className="community-image placeholder">
+										<div className="placeholder-text">{community.title?.[0] ?? '?'}</div>
+									</div>
+								)}
 								<h3>{community.title}</h3>
 								<p>{community.description}</p>
 								<button
@@ -95,15 +107,18 @@ export default function Profile() {
 					<div role="list" aria-label="User communities">
 						{favoriteCommunities.map((community) => (
 							<article key={community.id} className="community" role="listitem">
-								<img
-									src={community.image || '/images/Pokemon.jpeg'}
-									alt={`${community.title} community image`}
-									loading="lazy"
-									onError={(e) => {
-										e.target.onerror = null;
-										e.target.src = '/images/Pokemon.jpeg';
-									}}
-								/>
+								{community.image && !failedImages.has(community.id) ? (
+									<img
+										src={community.image}
+										alt={`${community.title} community image`}
+										loading="lazy"
+										onError={() => handleImageError(community.id)}
+									/>
+								) : (
+									<div className="community-image placeholder">
+										<div className="placeholder-text">{community.title?.[0] ?? '?'}</div>
+									</div>
+								)}
 								<h3>{community.title}</h3>
 								<p>{community.description}</p>
 								<button
