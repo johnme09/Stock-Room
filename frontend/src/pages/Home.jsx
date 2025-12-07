@@ -9,9 +9,13 @@ export default function Home() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [hasSearched, setHasSearched] = useState(false);
 	const [searchResults, setSearchResults] = useState([]);
+	const [userSearchQuery, setUserSearchQuery] = useState("");
+	const [hasSearchedUsers, setHasSearchedUsers] = useState(false);
+	const [userSearchResults, setUserSearchResults] = useState([]);
 	const [favoriteCommunities, setFavoriteCommunities] = useState([]);
 	const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
 	const [isSearching, setIsSearching] = useState(false);
+	const [isSearchingUsers, setIsSearchingUsers] = useState(false);
 	const [error, setError] = useState("");
 	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [newComm, setNewComm] = useState({ title: "", description: "", image: "" });
@@ -66,8 +70,45 @@ export default function Home() {
 		}
 	};
 
+	const fetchUserSearchResults = useCallback(async () => {
+		const trimmedQuery = userSearchQuery.trim();
+		if (!trimmedQuery) {
+			setHasSearchedUsers(false);
+			setUserSearchResults([]);
+			return;
+		}
+		setHasSearchedUsers(true);
+		setIsSearchingUsers(true);
+		try {
+			const data = await apiClient.get(`/users?q=${encodeURIComponent(trimmedQuery)}`);
+			setUserSearchResults(data.users);
+		} catch (err) {
+			setError(err.message);
+		} finally {
+			setIsSearchingUsers(false);
+		}
+	}, [userSearchQuery]);
+
+	const handleUserSearch = useCallback(
+		(e) => {
+			e.preventDefault();
+			fetchUserSearchResults();
+		},
+		[fetchUserSearchResults]
+	);
+
+	const handleUserSearchInputKeyDown = (e) => {
+		if (e.key === "Enter") {
+			handleUserSearch(e);
+		}
+	};
+
 	const handleViewCommunity = (community) => {
 		navigate(`/collection/${community.id}`);
+	};
+
+	const handleViewUser = (user) => {
+		navigate("/profile", { state: { User: user } });
 	};
 
 	const handleCreateCommunity = () => {
@@ -253,6 +294,78 @@ export default function Home() {
 									aria-label={`View ${community.title} community`}
 								>
 									View Community
+								</button>
+							</article>
+						))}
+					</div>
+				)}
+			</section>
+
+			<section id="searchUsers" aria-labelledby="user-search-heading">
+				<h2 id="user-search-heading">Search Users:</h2>
+
+				<form className="search-bar" onSubmit={handleUserSearch} role="search" aria-label="Search users">
+					<label htmlFor="user-search" className="visually-hidden">
+						Search for users
+					</label>
+					<input
+						type="search"
+						id="user-search"
+						name="user-search"
+						placeholder="Search users..."
+						value={userSearchQuery}
+						onChange={(e) => setUserSearchQuery(e.target.value)}
+						onKeyDown={handleUserSearchInputKeyDown}
+						aria-describedby="user-search-hint"
+					/>
+					<button type="submit" id="user-search-btn" aria-label="Submit search">
+						{isSearchingUsers ? "Searching..." : "Search"}
+					</button>
+					<span id="user-search-hint" className="visually-hidden">
+						Press Enter or click Search to find users
+					</span>
+				</form>
+
+				{!hasSearchedUsers ? (
+					<p className="search-default-text" aria-live="polite">
+						Start typing to find a user.
+					</p>
+				) : userSearchResults.length === 0 ? (
+					<p className="search-default-text" aria-live="polite">
+						No users found for "{userSearchQuery}"
+					</p>
+				) : (
+					<div className="users-list" role="list" aria-label="User search results">
+						{userSearchResults.map((user) => (
+							<article key={user.id} className="user-card" role="listitem">
+								<button
+									type="button"
+									className="user-card-button"
+									onClick={() => handleViewUser(user)}
+									aria-label={`View ${user.username}'s profile`}
+								>
+									{user.image ? (
+										<img
+											src={user.image}
+											alt={`${user.username}'s profile picture`}
+											className="user-avatar"
+											loading="lazy"
+											onError={(e) => {
+												e.target.onerror = null;
+												e.target.src = "/images/Profile-picture.png";
+											}}
+										/>
+									) : (
+										<div className="user-avatar-placeholder">
+											<img
+												src="/images/Profile-picture.png"
+												alt={`${user.username}'s profile picture`}
+												className="user-avatar"
+												loading="lazy"
+											/>
+										</div>
+									)}
+									<span className="user-username">{user.username}</span>
 								</button>
 							</article>
 						))}

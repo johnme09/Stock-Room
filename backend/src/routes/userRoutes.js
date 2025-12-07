@@ -1,5 +1,5 @@
 import express from "express";
-import { body, param } from "express-validator";
+import { body, param, query } from "express-validator";
 import auth from "../middleware/auth.js";
 import validateRequest from "../middleware/validateRequest.js";
 import asyncHandler from "../utils/asyncHandler.js";
@@ -19,6 +19,22 @@ router.get(
       user: serializeUser(user),
       favoriteCommunities: user.favorites,
     });
+  })
+);
+
+router.get(
+  "/",
+  auth({ required: false }),
+  [query("q").optional().isString()],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const { q } = req.query;
+    const filters = {};
+    if (q) {
+      filters.username = { $regex: q, $options: "i" };
+    }
+    const users = await User.find(filters).limit(20).sort({ username: 1 });
+    res.json({ users: users.map(serializeUser) });
   })
 );
 

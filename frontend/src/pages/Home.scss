@@ -3,7 +3,8 @@
 // Home page grid & community card styles
 
 section#FavoriteComms,
-section#searchComms {
+section#searchComms,
+section#searchUsers {
   max-width: 1400px;
   margin: 0 auto 4rem;
   padding: 2.5rem;
@@ -26,7 +27,8 @@ section#searchComms {
 }
 
 section#FavoriteComms h2,
-section#searchComms h2 {
+section#searchComms h2,
+section#searchUsers h2 {
   font-size: $font-size-subtitle;
   font-weight: $font-weight-bold;
   color: $text-color-dark;
@@ -429,12 +431,105 @@ section#searchComms > div[role="list"] {
   border: 2px dashed $border-color;
 }
 
+// User search styles
+.users-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.user-card {
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: $border-radius-large;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.user-card-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border: 2px solid $border-color;
+  border-radius: $border-radius-large;
+  background: $main-background-color;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: $box-shadow;
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $box-shadow-lg;
+    border-color: $primary-color;
+    background: $background-light;
+  }
+
+  &:active {
+    transform: translateY(-2px);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid $border-color;
+  transition: all $transition-base;
+}
+
+.user-card-button:hover .user-avatar {
+  border-color: $primary-color;
+  transform: scale(1.05);
+}
+
+.user-avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-username {
+  font-size: $font-size-body;
+  font-weight: $font-weight-semibold;
+  color: $text-color-dark;
+  text-align: center;
+  word-break: break-word;
+  transition: color $transition-base;
+}
+
+.user-card-button:hover .user-username {
+  color: $primary-color;
+}
+
 /* Responsive tweaks */
 @media (max-width: 768px) {
   section#FavoriteComms,
-  section#searchComms {
+  section#searchComms,
+  section#searchUsers {
     padding: 1.5rem;
     margin: 0 auto 2rem;
+  }
+
+  .users-list {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
   }
 
   .section-header {
@@ -461,7 +556,8 @@ section#searchComms > div[role="list"] {
   }
 
   section#FavoriteComms,
-  section#searchComms {
+  section#searchComms,
+  section#searchUsers {
     padding: 1rem;
   }
 
@@ -469,6 +565,20 @@ section#searchComms > div[role="list"] {
   section#searchComms > div[role="list"] {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+
+  .users-list {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .user-avatar {
+    width: 60px;
+    height: 60px;
+  }
+
+  .user-card-button {
+    padding: 1rem;
   }
 
   .modal {
