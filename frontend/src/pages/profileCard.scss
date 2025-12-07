@@ -1,127 +1,235 @@
+@use "../assets/styles/variables" as *;
+
 #profile {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
-  padding: 2rem;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  margin-bottom: 2rem;
+  gap: 2.5rem;
+  padding: 4rem 3rem;
+  background: linear-gradient(135deg, $main-background-color 0%, $background-light 100%);
+  border-radius: $border-radius-large;
+  box-shadow: $box-shadow-lg;
+  margin: 0 auto 4rem;
+  max-width: 1200px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, $primary-color 0%, $secondary-color 50%, $tertiary-color 100%);
+  }
 
   #profile-pic {
-    width: 180px;
-    height: 180px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid #f0f0f0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
+    border: 5px solid $border-color-light;
+    box-shadow: $box-shadow-lg;
+    transition: all $transition-base;
+    position: relative;
+    z-index: 1;
 
     &:hover {
-      transform: scale(1.02);
+      transform: scale(1.05);
+      border-color: $primary-color;
+      box-shadow: $box-shadow-xl;
     }
   }
 
   #username-heading {
     margin: 0;
-    font-size: 2rem;
-    color: #1a1a1a;
+    font-size: 2.5rem;
+    font-weight: $font-weight-bold;
+    color: $text-color-dark;
     text-align: center;
+    line-height: $line-height-tight;
+    letter-spacing: -0.5px;
   }
 
   #about-me {
     width: 100%;
     max-width: 800px;
     text-align: center;
-    padding: 0 1rem;
+    padding: 0 1.5rem;
+    background: $main-background-color;
+    border-radius: $border-radius-medium;
+    padding: 1.5rem;
+    border: 1px solid $border-color-light;
 
     h2 {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
+      font-weight: $font-weight-bold;
       margin-bottom: 1rem;
-      color: #2d2d2d;
+      color: $text-color-dark;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid $border-color;
     }
 
     p {
       margin: 0;
-      color: #4b5563;
-      line-height: 1.6;
-      font-size: 1.1rem;
+      color: $text-color-medium;
+      line-height: $line-height-relaxed;
+      font-size: $font-size-body;
     }
+  }
+}
+
+// Profile page section styling
+section#user-communities,
+section#owned-communities {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  h2 {
+    font-size: $font-size-subtitle;
+    font-weight: $font-weight-bold;
+    color: $text-color-dark;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid $border-color;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      width: 200px;
+      height: 3px;
+      background: linear-gradient(90deg, $primary-color 0%, $secondary-color 100%);
+    }
+  }
+
+  p[role="alert"] {
+    color: $error-color;
+    padding: 1rem;
+    background: rgba($error-color, 0.1);
+    border-radius: $border-radius-medium;
+    border-left: 4px solid $error-color;
+    margin-bottom: 1rem;
+    font-weight: $font-weight-medium;
+  }
+
+  >p:not([role="alert"]) {
+    text-align: center;
+    color: $text-color-medium;
+    padding: 3rem;
+    background: $background-light;
+    border-radius: $border-radius-large;
+    border: 2px dashed $border-color;
+    font-style: italic;
   }
 }
 
 // Communities grid container
-div[role="list"][aria-label="User communities"] {
+div[role="list"][aria-label="User communities"],
+div[role="list"][aria-label="Owned communities"] {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  padding: 1rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2.5rem;
+  padding: 2rem 0;
 }
 
 // Community section styles
 .community {
-  background: white;
-  border-radius: 16px;
+  background: $main-background-color;
+  border-radius: $border-radius-large;
   padding: 2rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: $box-shadow;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all $transition-base;
+  border: 1px solid $border-color;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, $primary-color 0%, $secondary-color 100%);
+    opacity: 0;
+    transition: opacity $transition-base;
+  }
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    transform: translateY(-6px);
+    box-shadow: $box-shadow-lg;
+    border-color: $primary-color;
+
+    &::before {
+      opacity: 1;
+    }
   }
 
   img {
-    width: 200px;
-    height: 200px;
+    width: 220px;
+    height: 220px;
     object-fit: contain;
-    border-radius: 12px;
-    background: #f6f7fb;
-    border: 2px solid #eee;
+    border-radius: $border-radius-medium;
+    background: $background-subtle;
+    border: 2px solid $border-color-light;
     margin-bottom: 1.5rem;
-    padding: 1rem;
+    padding: 1.25rem;
+    transition: all $transition-base;
+  }
+
+  &:hover img {
+    border-color: $primary-color;
+    transform: scale(1.02);
   }
 
   h3 {
     margin: 0 0 1rem 0;
-    font-size: 1.6rem;
-    color: #1a1a1a;
-    font-weight: 600;
+    font-size: 1.75rem;
+    font-weight: $font-weight-bold;
+    color: $text-color-dark;
+    line-height: $line-height-tight;
   }
 
   p {
     margin: 0 0 1.5rem 0;
-    color: #4b5563;
-    line-height: 1.6;
-    font-size: 1.1rem;
+    color: $text-color-medium;
+    line-height: $line-height-relaxed;
+    font-size: $font-size-body;
     flex-grow: 1;
   }
 
   button {
-    padding: 0.75rem 2rem;
-    background: #61607a;
-    color: white;
+    padding: 0.875rem 2rem;
+    background: linear-gradient(135deg, $primary-color 0%, $primary-color-hover 100%);
+    color: $text-color-white;
     border: none;
-    border-radius: 8px;
+    border-radius: $border-radius-medium;
     cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: all 0.2s;
+    font-size: $font-size-body;
+    font-weight: $font-weight-semibold;
+    transition: all $transition-base;
     width: 100%;
-    max-width: 200px;
+    max-width: 220px;
+    box-shadow: $box-shadow-sm;
 
     &:hover {
-      background: #4338ca;
-      transform: scale(1.02);
+      transform: translateY(-2px);
+      box-shadow: $box-shadow;
+      background: linear-gradient(135deg, $primary-color-hover 0%, $primary-color 100%);
     }
 
     &:active {
-      transform: scale(0.98);
+      transform: translateY(0);
     }
   }
 }

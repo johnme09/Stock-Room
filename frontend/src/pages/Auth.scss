@@ -2,34 +2,74 @@
 @use "sass:color";
 
 .auth-page {
-	min-height: calc(100vh - 60px); // Adjust based on header height
+	min-height: calc(100vh - 80px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	padding: $padding-large;
-	background-color: $main-background-color;
+	background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
+	position: relative;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 4px;
+		background: linear-gradient(90deg, $primary-color 0%, $secondary-color 50%, $tertiary-color 100%);
+	}
 }
 
 .auth-container {
 	width: 100%;
-	max-width: 400px;
-	padding: $padding-large * 1.5;
-	background-color: $main-background-color;
+	max-width: 500px;
+	padding: 3.5rem;
+	background: $main-background-color;
 	border-radius: $border-radius-large;
-	box-shadow: $box-shadow;
+	box-shadow: $box-shadow-xl;
+	border: 1px solid rgba(0, 0, 0, 0.08);
+	animation: slideUp $transition-base ease-out;
+	position: relative;
+	overflow: hidden;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 5px;
+		background: linear-gradient(90deg, $primary-color 0%, $secondary-color 50%, $tertiary-color 100%);
+	}
+
+	@keyframes slideUp {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
 
 	h1 {
 		margin: 0 0 $margin-small 0;
 		font-size: $font-size-title;
+		font-weight: $font-weight-bold;
 		color: $text-color-dark;
 		text-align: center;
+		line-height: $line-height-tight;
+		letter-spacing: -0.5px;
 	}
 
 	.auth-subtitle {
 		text-align: center;
-		color: color.adjust($text-color-dark, $lightness: -30%);
+		color: $text-color-medium;
 		margin-bottom: $margin-large;
-		font-size: $font-size-small;
+		font-size: $font-size-body;
+		line-height: $line-height-normal;
 	}
 }
 
@@ -42,94 +82,132 @@
 .form-group {
 	display: flex;
 	flex-direction: column;
-	gap: $margin-small;
+	gap: 0.5rem;
 
 	label {
-		font-weight: 500;
+		font-weight: $font-weight-semibold;
 		color: $text-color-dark;
 		font-size: $font-size-small;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
 	}
 
 	input {
-		padding: $padding-medium;
-		border: 2px solid color.adjust($text-color-dark, $lightness: 70%);
-		border-radius: $border-radius-small;
+		padding: 0.875rem 1.25rem;
+		border: 2px solid $border-color;
+		border-radius: $border-radius-medium;
 		font-size: $font-size-body;
 		font-family: $font-family-main;
-		transition: border-color 0.2s ease;
+		transition: all $transition-base;
+		background: $main-background-color;
+		color: $text-color-dark;
+
+		&::placeholder {
+			color: $text-color-light;
+		}
 
 		&:focus {
 			outline: none;
 			border-color: $primary-color;
+			box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
 		}
 
-		&:invalid {
-			border-color: #dc3545;
+		&:invalid:not(:focus):not(:placeholder-shown) {
+			border-color: $error-color;
 		}
 
 		&[aria-invalid="true"] {
-			border-color: #dc3545;
+			border-color: $error-color;
 		}
 	}
 
 	.field-error {
-		color: #dc3545;
-		font-size: 0.75rem;
-		margin-top: -$margin-small;
+		color: $error-color;
+		font-size: 0.8125rem;
+		margin-top: 0.25rem;
+		font-weight: $font-weight-medium;
+		padding-left: 0.25rem;
 	}
 }
 
 .auth-error {
-	background-color: #f8d7da;
-	color: #721c24;
-	padding: $padding-medium;
-	border-radius: $border-radius-small;
-	border: 1px solid #f5c6cb;
+	background: linear-gradient(135deg, rgba($error-color, 0.1) 0%, rgba($error-color, 0.05) 100%);
+	color: $error-color;
+	padding: 1rem;
+	border-radius: $border-radius-medium;
+	border: 2px solid rgba($error-color, 0.3);
+	border-left: 4px solid $error-color;
 	font-size: $font-size-small;
 	text-align: center;
+	font-weight: $font-weight-medium;
+	margin-bottom: 0.5rem;
 }
 
 .auth-button {
-	padding: $padding-medium;
-	background-color: $primary-color;
-	color: $text-color-light;
+	padding: 1rem 2rem;
+	background: linear-gradient(135deg, $primary-color 0%, $primary-color-hover 100%);
+	color: $text-color-white;
 	border: none;
-	border-radius: $border-radius-small;
+	border-radius: $border-radius-medium;
 	font-size: $font-size-body;
-	font-weight: 500;
+	font-weight: $font-weight-semibold;
 	cursor: pointer;
-	transition: background-color 0.2s ease, transform 0.1s ease;
+	transition: all $transition-base;
+	box-shadow: $box-shadow-sm;
+	margin-top: 0.5rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 
 	&:hover:not(:disabled) {
-		background-color: color.adjust($primary-color, $lightness: -10%);
+		background: linear-gradient(135deg, $primary-color-hover 0%, $primary-color 100%);
+		transform: translateY(-2px);
+		box-shadow: $box-shadow;
 	}
 
 	&:active:not(:disabled) {
-		transform: scale(0.98);
+		transform: translateY(0);
 	}
 
 	&:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
+		transform: none;
 	}
 }
 
 .auth-footer {
 	text-align: center;
 	margin-top: $margin-large;
-	font-size: $font-size-small;
-	color: color.adjust($text-color-dark, $lightness: -20%);
+	font-size: $font-size-body;
+	color: $text-color-medium;
+	padding-top: $margin-medium;
+	border-top: 1px solid $border-color-light;
 }
 
 .auth-link {
 	color: $primary-color;
 	text-decoration: none;
-	font-weight: 500;
-	transition: color 0.2s ease;
+	font-weight: $font-weight-semibold;
+	transition: all $transition-base;
+	position: relative;
+
+	&::after {
+		content: '';
+		position: absolute;
+		bottom: -2px;
+		left: 0;
+		width: 0;
+		height: 2px;
+		background: $primary-color;
+		transition: width $transition-base;
+	}
 
 	&:hover {
-		color: color.adjust($primary-color, $lightness: -10%);
-		text-decoration: underline;
+		color: $primary-color-hover;
+		
+		&::after {
+			width: 100%;
+		}
 	}
 }
 

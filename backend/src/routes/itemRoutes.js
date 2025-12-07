@@ -9,13 +9,17 @@ import { HttpError } from "../utils/httpError.js";
 
 const router = express.Router();
 
-const ensureCommunityOwner = async (item, userId) => {
+const ensureCommunityOwnerOrMod = async (item, userId) => {
   const community = await Community.findById(item.communityId);
   if (!community) {
     throw new HttpError(404, "Community not found");
   }
-  if (community.ownerId.toString() !== userId.toString()) {
-    throw new HttpError(403, "Only the community owner can manage items");
+
+  const isOwner = community.ownerId.toString() === userId.toString();
+  const isMod = community.moderators?.some((mod) => mod.toString() === userId.toString());
+
+  if (!isOwner && !isMod) {
+    throw new HttpError(403, "Only the community owner or moderators can manage items");
   }
 };
 
@@ -35,7 +39,7 @@ router.patch(
       throw new HttpError(404, "Item not found");
     }
 
-    await ensureCommunityOwner(item, req.user.id);
+    await ensureCommunityOwnerOrMod(item, req.user.id);
 
     if (req.body.title) item.title = req.body.title;
     if (typeof req.body.description === "string") item.description = req.body.description;
@@ -57,7 +61,7 @@ router.delete(
       throw new HttpError(404, "Item not found");
     }
 
-    await ensureCommunityOwner(item, req.user.id);
+    await ensureCommunityOwnerOrMod(item, req.user.id);
     await item.deleteOne();
 
     res.status(204).end();
