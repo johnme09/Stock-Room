@@ -20,6 +20,7 @@ export default function Collection() {
 	const [newItem, setNewItem] = useState({ title: '', description: '', image: '' });
 	const [isSavingItem, setIsSavingItem] = useState(false);
 	const [showAddItem, setShowAddItem] = useState(false);
+	const [showModModal, setShowModModal] = useState(false);
 	const [modUsername, setModUsername] = useState('');
 	const { user, refreshProfile } = useAuth();
 	const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function Collection() {
 		});
 	};
 
-	const isOwner = user?.id === community?.ownerId;
+	const isOwner = user?.id === (community?.ownerId?._id || community?.ownerId?.id || community?.ownerId);
 	const isModerator = community?.moderators?.some((mod) => (mod._id || mod.id) === user?.id);
 	const canManage = isOwner || isModerator;
 
@@ -178,6 +179,11 @@ export default function Collection() {
 		}
 	};
 
+	const closeModModal = () => {
+		setShowModModal(false);
+		setModUsername('');
+	};
+
 	const handleRemoveModerator = async (userId) => {
 		if (!window.confirm('Remove this moderator?')) return;
 		try {
@@ -284,6 +290,25 @@ export default function Collection() {
 							>
 								{isFavorited ? 'Favorited' : 'Favorite'}
 							</button>
+
+							{isOwner && (
+								<>
+									<button
+										onClick={() => setShowModModal(true)}
+										className="manage-mods-button"
+										aria-label="Manage moderators"
+									>
+										Manage Moderators
+									</button>
+									<button
+										onClick={handleDeleteCommunity}
+										className="danger-button"
+										aria-label="Delete community"
+									>
+										Delete Community
+									</button>
+								</>
+							)}
 						</div>
 					</div>
 				</div>
@@ -291,44 +316,78 @@ export default function Collection() {
 
 			</header>
 
-			{isOwner && (
-				<section className="moderator-section" style={{ maxWidth: '800px', margin: '0 auto 2rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}>
-					<h3>Manage Moderators</h3>
-					<div className="moderator-list" style={{ marginBottom: '1rem' }}>
-						{community?.moderators?.map((mod) => (
-							<div key={mod._id || mod.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-								<span>@{mod.username}</span>
-								<button
-									onClick={() => handleRemoveModerator(mod.username)}
-									style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', background: '#ff4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-								>
-									Remove
+			<section className="community-leadership" aria-label="Community leadership">
+				<div className="leadership-content">
+					<div className="leadership-group">
+						<h3 className="leadership-label">Owner</h3>
+						<div className="leadership-user">
+							<span className="user-badge owner-badge">👑</span>
+							<span className="username">@{community?.ownerId?.username || 'Unknown'}</span>
+						</div>
+					</div>
+					{community?.moderators && community.moderators.length > 0 && (
+						<div className="leadership-group">
+							<h3 className="leadership-label">Moderators</h3>
+							<div className="moderators-list">
+								{community.moderators.map((mod) => (
+									<div key={mod._id || mod.id} className="leadership-user">
+										<span className="user-badge moderator-badge">🛡️</span>
+										<span className="username">@{mod.username}</span>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+				</div>
+			</section>
+
+			{isOwner && showModModal && (
+				<div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Manage moderators" onClick={closeModModal}>
+					<div className="modal" onClick={(e) => e.stopPropagation()}>
+						<h3>Manage Moderators</h3>
+						<div className="moderator-list">
+							{community?.moderators && community.moderators.length > 0 ? (
+								community.moderators.map((mod) => (
+									<div key={mod._id || mod.id} className="moderator-item">
+										<div className="moderator-info">
+											<span className="user-badge moderator-badge">🛡️</span>
+											<span className="username">@{mod.username}</span>
+										</div>
+										<button
+											onClick={() => handleRemoveModerator(mod.username)}
+											className="remove-moderator-btn"
+											aria-label={`Remove ${mod.username} as moderator`}
+										>
+											Remove
+										</button>
+									</div>
+								))
+							) : (
+								<p className="no-moderators">No moderators yet.</p>
+							)}
+						</div>
+						<form onSubmit={handleAddModerator} className="add-moderator-form">
+							<label htmlFor="mod-username">Add Moderator</label>
+							<div className="add-moderator-input-group">
+								<input
+									id="mod-username"
+									value={modUsername}
+									onChange={(e) => setModUsername(e.target.value)}
+									placeholder="Enter username"
+									required
+								/>
+								<button type="submit" className="add-moderator-btn">
+									Add
 								</button>
 							</div>
-						))}
-						{(!community?.moderators || community.moderators.length === 0) && <p>No moderators yet.</p>}
+						</form>
+						<div className="modal-actions">
+							<button type="button" onClick={closeModModal}>
+								Close
+							</button>
+						</div>
 					</div>
-					<form onSubmit={handleAddModerator} style={{ display: 'flex', gap: '0.5rem' }}>
-						<input
-							value={modUsername}
-							onChange={(e) => setModUsername(e.target.value)}
-							placeholder="Enter username to add"
-							style={{ padding: '0.5rem', flex: 1 }}
-						/>
-						<button type="submit" style={{ padding: '0.5rem 1rem', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-							Add Moderator
-						</button>
-					</form>
-					<div style={{ marginTop: '2rem', borderTop: '1px solid #ddd', paddingTop: '1rem' }}>
-						<button
-							onClick={handleDeleteCommunity}
-							className="danger-button"
-							style={{ background: '#dc3545', color: 'white', padding: '0.75rem 1.5rem', border: 'none', borderRadius: '4px', cursor: 'pointer', width: '100%' }}
-						>
-							Delete Community
-						</button>
-					</div>
-				</section>
+				</div>
 			)}
 
 			{canManage && (

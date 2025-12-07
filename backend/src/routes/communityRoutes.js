@@ -80,10 +80,9 @@ router.get(
   [param("communityId").isMongoId().withMessage("Invalid community id")],
   validateRequest,
   asyncHandler(async (req, res) => {
-    const community = await Community.findById(req.params.communityId).populate(
-      "moderators",
-      "username"
-    );
+    const community = await Community.findById(req.params.communityId)
+      .populate("ownerId", "username")
+      .populate("moderators", "username");
     if (!community) {
       throw new HttpError(404, "Community not found");
     }

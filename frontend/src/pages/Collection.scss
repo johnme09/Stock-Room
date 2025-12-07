@@ -197,12 +197,114 @@ main[role="main"] {
                 font-weight: $font-weight-bold;
               }
             }
+
+            &.manage-mods-button {
+              background: linear-gradient(135deg, $primary-color 0%, $primary-color-hover 100%);
+              color: $text-color-white;
+              border: none;
+
+              &:hover {
+                transform: translateY(-2px);
+                box-shadow: $box-shadow;
+                background: linear-gradient(135deg, $primary-color-hover 0%, $primary-color 100%);
+              }
+            }
+
+            &.danger-button {
+              background: #dc3545;
+              color: white;
+              border: none;
+              margin-left: auto;
+
+              &:hover {
+                background: #c82333;
+                transform: translateY(-2px);
+                box-shadow: $box-shadow;
+              }
+            }
           }
         }
       }
     }
 
 
+  }
+
+  // Community leadership section
+  .community-leadership {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, $background-light 0%, $background-subtle 100%);
+    border-radius: $border-radius-large;
+    box-shadow: $box-shadow-md;
+    border: 2px solid $border-color-light;
+
+    .leadership-content {
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+
+      .leadership-group {
+        flex: 1;
+        min-width: 200px;
+
+        .leadership-label {
+          font-size: 0.875rem;
+          font-weight: $font-weight-semibold;
+          color: $text-color-medium;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin: 0 0 1rem 0;
+          padding-bottom: 0.5rem;
+          border-bottom: 2px solid $border-color-light;
+        }
+
+        .leadership-user {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem 1rem;
+          background: $main-background-color;
+          border-radius: $border-radius-medium;
+          margin-bottom: 0.5rem;
+          transition: all $transition-base;
+          border: 1px solid $border-color-light;
+
+          &:hover {
+            transform: translateX(4px);
+            box-shadow: $box-shadow-sm;
+            border-color: $primary-color;
+          }
+
+          .user-badge {
+            font-size: 1.25rem;
+            line-height: 1;
+          }
+
+          .owner-badge {
+            filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
+          }
+
+          .moderator-badge {
+            filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
+          }
+
+          .username {
+            font-size: 1rem;
+            font-weight: $font-weight-medium;
+            color: $text-color-dark;
+          }
+        }
+
+        .moderators-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+      }
+    }
   }
 
   // Grid container for community items only
@@ -855,6 +957,239 @@ section {
   }
 }
 
+// Modal styles for moderator management
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+  animation: fadeIn $transition-base ease-out;
+  isolation: isolate;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+.modal {
+  background: $main-background-color;
+  border-radius: $border-radius-large;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: $box-shadow-xl;
+  border: 1px solid $border-color;
+  animation: slideUp $transition-base ease-out;
+  position: relative;
+  z-index: 10001;
+  isolation: isolate;
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: $font-size-subtitle;
+    font-weight: $font-weight-bold;
+    color: $text-color-dark;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid $border-color;
+  }
+
+  .moderator-list {
+    margin-bottom: 1.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+
+    .moderator-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.875rem 1rem;
+      background: linear-gradient(135deg, $background-light 0%, $background-subtle 100%);
+      border-radius: $border-radius-medium;
+      margin-bottom: 0.75rem;
+      border: 1px solid $border-color-light;
+      transition: all $transition-base;
+
+      &:hover {
+        transform: translateX(4px);
+        box-shadow: $box-shadow-sm;
+        border-color: $primary-color;
+      }
+
+      .moderator-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+
+        .user-badge {
+          font-size: 1.25rem;
+          line-height: 1;
+
+          &.moderator-badge {
+            filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
+          }
+        }
+
+        .username {
+          font-size: 1rem;
+          font-weight: $font-weight-medium;
+          color: $text-color-dark;
+        }
+      }
+
+      .remove-moderator-btn {
+        padding: 0.5rem 1rem;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: $border-radius-medium;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: $font-weight-semibold;
+        transition: all $transition-base;
+        box-shadow: $box-shadow-sm;
+
+        &:hover {
+          background: #c82333;
+          transform: translateY(-2px);
+          box-shadow: $box-shadow;
+        }
+      }
+    }
+
+    .no-moderators {
+      text-align: center;
+      color: $text-color-medium;
+      padding: 2rem;
+      font-style: italic;
+    }
+  }
+
+  .add-moderator-form {
+    margin-bottom: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid $border-color-light;
+
+    label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-weight: $font-weight-semibold;
+      color: $text-color-dark;
+      font-size: $font-size-small;
+    }
+
+    .add-moderator-input-group {
+      display: flex;
+      gap: 0.75rem;
+
+      input {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: $border-radius-medium;
+        border: 2px solid $border-color;
+        font-size: $font-size-body;
+        font-family: inherit;
+        transition: all $transition-base;
+        background: $main-background-color;
+        color: $text-color-dark;
+
+        &:focus {
+          outline: none;
+          border-color: $primary-color;
+          box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+        }
+
+        &::placeholder {
+          color: $text-color-light;
+        }
+      }
+
+      .add-moderator-btn {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, $primary-color 0%, $primary-color-hover 100%);
+        color: $text-color-white;
+        border: none;
+        border-radius: $border-radius-medium;
+        font-weight: $font-weight-semibold;
+        cursor: pointer;
+        transition: all $transition-base;
+        font-size: $font-size-body;
+        box-shadow: $box-shadow-sm;
+        white-space: nowrap;
+
+        &:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: $box-shadow;
+          background: linear-gradient(135deg, $primary-color-hover 0%, $primary-color 100%);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+      }
+    }
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid $border-color-light;
+
+    button {
+      min-width: 100px;
+      padding: 0.75rem 1.5rem;
+      border-radius: $border-radius-medium;
+      font-weight: $font-weight-semibold;
+      cursor: pointer;
+      transition: all $transition-base;
+      font-size: $font-size-body;
+
+      &[type="button"] {
+        background: $background-light;
+        color: $text-color-dark;
+        border: 2px solid $border-color;
+
+        &:hover {
+          background: $border-color;
+          border-color: $text-color-medium;
+        }
+      }
+    }
+  }
+}
+
 // Responsive adjustments
 @media (max-width: 768px) {
   main[role="main"] {
@@ -875,5 +1210,10 @@ section {
 
   .VBox {
     align-items: center;
+  }
+
+  .modal {
+    padding: 1.5rem;
+    max-width: 95%;
   }
 }
