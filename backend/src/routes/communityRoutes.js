@@ -309,6 +309,7 @@ router.put(
     }
 
     await community.save();
+    await community.populate("moderators", "username");
     res.json({ community });
   })
 );
