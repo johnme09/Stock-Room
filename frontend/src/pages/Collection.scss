@@ -476,6 +476,39 @@ main[role="main"] {
         opacity: 1;
       }
     }
+
+    .delete-item-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid $border-color;
+      color: $error-color;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all $transition-base;
+      opacity: 0;
+      transform: translateY(-5px);
+      z-index: 2;
+      box-shadow: $box-shadow-sm;
+
+      &:hover {
+        background: $error-color;
+        color: white;
+        border-color: $error-color;
+        transform: translateY(-5px) scale(1.1);
+      }
+    }
+
+    &:hover .delete-item-btn {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .items-grid .itemCard img,
@@ -540,9 +573,10 @@ main[role="main"] {
     display: flex;
     gap: 0.5rem;
     width: 100%;
+    justify-content: center;
 
     div {
-      flex: 1;
+      flex: 0 0 100px;
       position: relative;
     }
 
@@ -571,7 +605,11 @@ main[role="main"] {
       background: $background-light;
       border: 1px solid $border-color;
       border-radius: $border-radius-medium;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-weight: $font-weight-semibold;
       cursor: pointer;
       transition: all $transition-base;
