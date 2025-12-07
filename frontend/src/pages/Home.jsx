@@ -9,6 +9,8 @@ export default function Home() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [hasSearched, setHasSearched] = useState(false);
 	const [searchResults, setSearchResults] = useState([]);
+	const [randomCommunities, setRandomCommunities] = useState([]);
+	const [isLoadingRandom, setIsLoadingRandom] = useState(false);
 	const [userSearchQuery, setUserSearchQuery] = useState("");
 	const [hasSearchedUsers, setHasSearchedUsers] = useState(false);
 	const [userSearchResults, setUserSearchResults] = useState([]);
@@ -36,6 +38,27 @@ export default function Home() {
 			.catch((err) => setError(err.message))
 			.finally(() => setIsLoadingFavorites(false));
 	}, [user]);
+
+	// Fetch random communities on component mount
+	useEffect(() => {
+		const fetchRandomCommunities = async () => {
+			setIsLoadingRandom(true);
+			try {
+				const data = await apiClient.get("/communities");
+				const allCommunities = data.communities || [];
+				// Randomly shuffle and take up to 4
+				const shuffled = [...allCommunities].sort(() => Math.random() - 0.5);
+				const random = shuffled.slice(0, 4);
+				setRandomCommunities(random);
+			} catch (err) {
+				setError(err.message);
+			} finally {
+				setIsLoadingRandom(false);
+			}
+		};
+
+		fetchRandomCommunities();
+	}, []);
 
 	const fetchSearchResults = useCallback(async () => {
 		const trimmedQuery = searchQuery.trim();
@@ -270,9 +293,39 @@ export default function Home() {
 				</form>
 
 				{!hasSearched ? (
-					<p className="search-default-text" aria-live="polite">
-						Start typing to find a community.
-					</p>
+					isLoadingRandom ? (
+						<p className="search-default-text" aria-live="polite">
+							Loading communities...
+						</p>
+					) : randomCommunities.length === 0 ? (
+						<p className="search-default-text" aria-live="polite">
+							No communities available.
+						</p>
+					) : (
+						<div role="list" aria-label="Random communities">
+							{randomCommunities.map((community) => (
+								<article key={community.id} className="community" role="listitem">
+									{community.image ? (
+										<img src={community.image} alt={`${community.title} community image`} loading="lazy" />
+									) : (
+										<div className="community-placeholder" aria-hidden>
+											No image
+										</div>
+									)}
+									<h3 className="community-title">{community.title}</h3>
+									<p className="community-desc">{community.description}</p>
+									<button
+										type="button"
+										className="community-action"
+										onClick={() => handleViewCommunity(community)}
+										aria-label={`View ${community.title} community`}
+									>
+										View Community
+									</button>
+								</article>
+							))}
+						</div>
+					)
 				) : searchResults.length === 0 ? (
 					<p className="search-default-text" aria-live="polite">
 						No communities found for "{searchQuery}"
