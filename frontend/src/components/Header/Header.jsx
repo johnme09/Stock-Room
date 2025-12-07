@@ -97,6 +97,9 @@ const Header = () => {
                     if (item.action) {
                       item.action();
                       setIsOpen(false);
+                      if (item.label === "Log out") {
+                        navigate("/login");
+                      }
                     } else if (item.path) {
                       handleNavigation(item.path);
                     }
@@ -107,6 +110,9 @@ const Header = () => {
                       if (item.action) {
                         item.action();
                         setIsOpen(false);
+                        if (item.label === "Log out") {
+                          navigate("/login");
+                        }
                       } else if (item.path) {
                         handleNavigation(item.path);
                       }
