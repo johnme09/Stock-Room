@@ -142,17 +142,20 @@ export default function Home() {
 
 	return (
 		<main role="main">
+			<div className="create-community-container">
+				<button
+					type="button"
+					id="create-community-btn"
+					onClick={handleCreateCommunity}
+					aria-label="Create a new community"
+				>
+					Create your own community
+				</button>
+			</div>
+
 			<section id="FavoriteComms" aria-labelledby="fav-heading">
 				<div className="section-header">
 					<h2 id="fav-heading">Favorited Communities</h2>
-					<button
-						type="button"
-						id="create-community-btn"
-						onClick={handleCreateCommunity}
-						aria-label="Create a new community"
-					>
-						Create your own community
-					</button>
 				</div>
 
 				{error && (

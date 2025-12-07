@@ -160,6 +160,16 @@ section#searchComms > div[role="list"] {
   }
 }
 
+/* Container for create community button at top of page */
+.create-community-container {
+  max-width: 1400px;
+  margin: 0 auto 2rem;
+  padding: 0 2.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 /* Make the create button stand out and sit above the grid */
 .section-header {
   display: flex;
@@ -176,13 +186,13 @@ section#searchComms > div[role="list"] {
   background: linear-gradient(135deg, $primary-color 0%, $primary-color-hover 100%);
   color: $text-color-white;
   border: none;
-  padding: 0.6rem 1.25rem;
+  padding: 1rem 2rem;
   border-radius: $border-radius-medium;
   font-weight: $font-weight-semibold;
   cursor: pointer;
   transition: all $transition-base;
   box-shadow: $box-shadow-sm;
-  font-size: $font-size-small;
+  font-size: $font-size-body;
 
   &:hover {
     transform: translateY(-2px);
@@ -527,6 +537,11 @@ section#searchComms > div[role="list"] {
     margin: 0 auto 2rem;
   }
 
+  .create-community-container {
+    padding: 0 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
   .users-list {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
@@ -535,10 +550,6 @@ section#searchComms > div[role="list"] {
   .section-header {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  #create-community-btn {
-    width: 100%;
   }
 
   .search-bar {
@@ -553,6 +564,10 @@ section#searchComms > div[role="list"] {
 @media (max-width: 520px) {
   .community img {
     height: 160px;
+  }
+
+  .create-community-container {
+    padding: 0 1rem;
   }
 
   section#FavoriteComms,
