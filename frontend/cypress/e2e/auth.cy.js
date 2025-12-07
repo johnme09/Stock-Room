@@ -6,7 +6,7 @@ describe('Authentication', () => {
     };
 
     it('should register a new user', () => {
-        cy.visit('/register');
+        cy.visit('/signup');
         cy.get('input[name="username"]').type(testUser.username);
         cy.get('input[name="email"]').type(testUser.email);
         cy.get('input[name="password"]').type(testUser.password);
