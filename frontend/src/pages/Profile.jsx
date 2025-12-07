@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ProfileCard from './profileCard.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { apiClient } from '../lib/apiClient.js';
@@ -7,11 +7,20 @@ import { apiClient } from '../lib/apiClient.js';
 // ProfilePage displays user profile information and communities
 export default function Profile() {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { user } = useAuth();
 	const [favoriteCommunities, setFavoriteCommunities] = useState([]);
 	const [ownedCommunities, setOwnedCommunities] = useState([]);
 	const [error, setError] = useState('');
 	const [failedImages, setFailedImages] = useState(new Set());
+	
+	// If a User object is passed via navigation state, use that instead of default user
+	const navUser = location.state?.User;
+	const displayUser = navUser
+		? typeof navUser === 'object' && navUser !== null
+			? navUser
+			: { id: navUser }
+		: user;
 
 	const handleImageError = (id) => {
 		setFailedImages((prev) => {
@@ -22,24 +31,36 @@ export default function Profile() {
 	};
 
 	useEffect(() => {
-		if (!user) return;
+		if (!displayUser) return;
 
 		const fetchData = async () => {
 			try {
-				const [userData, communitiesData] = await Promise.all([
-					apiClient.get('/users/me'),
-					apiClient.get('/communities?owned=true')
-				]);
+				if (displayUser.id === user?.id) {
+					// If viewing own profile, use /users/me endpoint
+					const [userData, communitiesData] = await Promise.all([
+						apiClient.get('/users/me'),
+						apiClient.get('/communities?owned=true')
+					]);
 
-				setFavoriteCommunities(userData.favoriteCommunities || []);
-				setOwnedCommunities(communitiesData.communities || []);
+					setFavoriteCommunities(userData.favoriteCommunities || []);
+					setOwnedCommunities(communitiesData.communities || []);
+				} else {
+					// For other users, fetch their data using the new endpoints
+					const [userData, communitiesData] = await Promise.all([
+						apiClient.get(`/users/${displayUser.id}`),
+						apiClient.get(`/communities?ownerId=${displayUser.id}`)
+					]);
+
+					setFavoriteCommunities(userData.favoriteCommunities || []);
+					setOwnedCommunities(communitiesData.communities || []);
+				}
 			} catch (err) {
 				setError(err.message);
 			}
 		};
 
 		fetchData();
-	}, [user]);
+	}, [displayUser, user]);
 
 	const handleViewCollection = useCallback(
 		(communityId) => {
@@ -48,19 +69,25 @@ export default function Profile() {
 		[navigate]
 	);
 
-	if (!user) {
-		return <p role="alert">Please log in to view your profile.</p>;
+	if (!displayUser) {
+		return <p role="alert">Please log in to view profiles.</p>;
 	}
+
+	const isOwnProfile = displayUser.id === user?.id;
 
 	return (
 		<main role="main">
-			<ProfileCard username={user.username} bio={user.about} userProfilePic={user.image} />
+			<ProfileCard 
+				username={displayUser.username || 'Unknown User'} 
+				bio={displayUser.about || ''} 
+				userProfilePic={displayUser.image} 
+			/>
 
 			<section id="owned-communities" aria-labelledby="owned-heading" style={{ marginBottom: '3rem' }}>
-				<h2 id="owned-heading">Your Communities</h2>
+				<h2 id="owned-heading">{isOwnProfile ? 'Your Communities' : `${displayUser.username}'s Communities`}</h2>
 
 				{ownedCommunities.length === 0 ? (
-					<p>You haven't created any communities yet.</p>
+					<p>{isOwnProfile ? "You haven't created any communities yet." : `${displayUser.username} hasn't created any communities yet.`}</p>
 				) : (
 					<div role="list" aria-label="Owned communities">
 						{ownedCommunities.map((community) => (
@@ -93,7 +120,7 @@ export default function Profile() {
 			</section>
 
 			<section id="user-communities" aria-labelledby="communities-heading">
-				<h2 id="communities-heading">Your Favorite Communities</h2>
+				<h2 id="communities-heading">{isOwnProfile ? 'Your Favorite Communities' : `${displayUser.username}'s Favorite Communities`}</h2>
 
 				{error && (
 					<p role="alert" style={{ color: '#b91c1c' }}>
@@ -102,7 +129,7 @@ export default function Profile() {
 				)}
 
 				{favoriteCommunities.length === 0 ? (
-					<p>You have not favorited any communities yet.</p>
+					<p>{isOwnProfile ? "You have not favorited any communities yet." : `${displayUser.username} has not favorited any communities yet.`}</p>
 				) : (
 					<div role="list" aria-label="User communities">
 						{favoriteCommunities.map((community) => (

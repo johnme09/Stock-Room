@@ -111,8 +111,8 @@ export default function Forum({ communityId, isOwner, isModerator, user }) {
                                         onError={(e) => { e.target.onerror = null; e.target.src = '/images/Profile-picture.png'; }}
                                         role="link"
                                         tabIndex={0}
-                                        onClick={() => navigate(`/collection/personal?communityId=${communityId}`, { state: { User: post.authorId } })}
-                                        onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/collection/personal?communityId=${communityId}`, { state: { User: post.authorId } }); }}
+                                        onClick={() => navigate('/profile', { state: { User: post.authorId } })}
+                                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/profile', { state: { User: post.authorId } }); }}}
                                         style={{ cursor: 'pointer' }}
                                     />
                                     <div className="author-details">

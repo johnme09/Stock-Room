@@ -22,6 +22,7 @@ router.get(
   [
     query("q").optional().isString(),
     query("favoriteOnly").optional().isBoolean().toBoolean(),
+    query("ownerId").optional().isMongoId(),
   ],
   validateRequest,
   asyncHandler(async (req, res) => {
@@ -42,6 +43,10 @@ router.get(
         throw new HttpError(401, "Authentication required to filter owned communities");
       }
       filters.ownerId = req.user.id;
+    }
+    if (req.query.ownerId) {
+      // Allow filtering by any user's ID (for viewing other users' profiles)
+      filters.ownerId = req.query.ownerId;
     }
 
     const communities = await Community.find(filters).sort({ createdAt: -1 });

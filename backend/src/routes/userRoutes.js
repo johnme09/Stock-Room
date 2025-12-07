@@ -22,6 +22,23 @@ router.get(
   })
 );
 
+router.get(
+  "/:userId",
+  auth({ required: false }),
+  [param("userId").isMongoId().withMessage("Invalid user id")],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.userId).populate("favorites");
+    if (!user) {
+      throw new HttpError(404, "User not found");
+    }
+    res.json({
+      user: serializeUser(user),
+      favoriteCommunities: user.favorites,
+    });
+  })
+);
+
 router.patch(
   "/me",
   auth(),
