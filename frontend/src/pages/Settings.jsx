@@ -28,35 +28,23 @@ export default function Settings() {
 		setSaveMessage('');
 	}, []);
 
-	const onSaveProfileImage = useCallback(async () => {
+	const onSaveAll = useCallback(async () => {
 		setIsSaving(true);
 		setSaveMessage('');
 		try {
-			await apiClient.patch('/users/me', { image: formState.pfpImageUrl });
+			await apiClient.patch('/users/me', { 
+				image: formState.pfpImageUrl,
+				about: formState.about 
+			});
 			await refreshProfile();
-			setSaveMessage('Profile picture saved successfully');
+			setSaveMessage('All changes saved successfully');
 		} catch (err) {
 			setSaveMessage(err.message);
 		} finally {
 			setIsSaving(false);
 			setTimeout(() => setSaveMessage(''), 3000);
 		}
-	}, [formState.pfpImageUrl, refreshProfile]);
-
-	const onSaveAbout = useCallback(async () => {
-		setIsSaving(true);
-		setSaveMessage('');
-		try {
-			await apiClient.patch('/users/me', { about: formState.about });
-			await refreshProfile();
-			setSaveMessage('About saved successfully');
-		} catch (err) {
-			setSaveMessage(err.message);
-		} finally {
-			setIsSaving(false);
-			setTimeout(() => setSaveMessage(''), 3000);
-		}
-	}, [formState.about, refreshProfile]);
+	}, [formState.pfpImageUrl, formState.about, refreshProfile]);
 
 	if (!user) {
 		return <p role="alert">Please log in to access settings.</p>;
@@ -121,17 +109,6 @@ export default function Settings() {
 				<div id="about-hint" style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
 					{formState.about.length}/500 characters
 				</div>
-				<div>
-					<button
-						type="button"
-						id="save-about"
-						onClick={onSaveAbout}
-						disabled={isSaving}
-						aria-label="Save about me information"
-					>
-						{isSaving ? 'Saving...' : 'Save'}
-					</button>
-				</div>
 			</section>
 
 			<section id="profile-image-section" className="settings-card" aria-labelledby="profile-image-heading">
@@ -151,19 +128,19 @@ export default function Settings() {
 				<div id="pfp-hint" style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
 					Provide a valid image URL
 				</div>
-				<div>
-					<button
-						type="button"
-						id="save-pfp"
-						onClick={onSaveProfileImage}
-						disabled={isSaving}
-						aria-label="Save profile picture"
-						style={{ marginTop: '0.75rem', padding: '0.6rem 1.5rem', background: '#626262', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-					>
-						{isSaving ? 'Saving...' : 'Save'}
-					</button>
-				</div>
 			</section>
+
+			<div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem' }}>
+				<button
+					type="button"
+					id="save-all"
+					onClick={onSaveAll}
+					disabled={isSaving}
+					aria-label="Save all changes"
+				>
+					{isSaving ? 'Saving...' : 'Save'}
+				</button>
+			</div>
 		</main>
 	);
 }

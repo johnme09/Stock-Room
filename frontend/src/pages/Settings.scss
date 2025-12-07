@@ -111,15 +111,13 @@
   }
 }
 
-#save-about,
-#save-pfp {
+#save-all {
   background: linear-gradient(135deg, $primary-color 0%, $primary-color-hover 100%);
   color: $text-color-white;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: $border-radius-medium;
   cursor: pointer;
-  margin-top: 1rem;
   font-weight: $font-weight-semibold;
   transition: all $transition-base;
   box-shadow: $box-shadow-sm;
