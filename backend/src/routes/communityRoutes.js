@@ -21,10 +21,11 @@ router.get(
   [
     query("q").optional().isString(),
     query("favoriteOnly").optional().isBoolean().toBoolean(),
+    query("ownerId").optional().isMongoId(),
   ],
   validateRequest,
   asyncHandler(async (req, res) => {
-    const { q, favoriteOnly } = req.query;
+    const { q, favoriteOnly, ownerId } = req.query;
 
     const filters = {};
     if (q) {
@@ -36,7 +37,9 @@ router.get(
       }
       filters._id = { $in: req.user.favorites };
     }
-    if (req.query.owned) {
+    if (ownerId) {
+      filters.ownerId = ownerId;
+    } else if (req.query.owned) {
       if (!req.user) {
         throw new HttpError(401, "Authentication required to filter owned communities");
       }

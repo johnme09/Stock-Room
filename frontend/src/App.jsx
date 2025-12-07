@@ -21,6 +21,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/collection" element={<Collection />} />
           <Route path="/collection/:id" element={<Collection />} />

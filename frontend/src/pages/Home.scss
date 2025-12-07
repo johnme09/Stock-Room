@@ -3,7 +3,8 @@
 // Home page grid & community card styles
 
 section#FavoriteComms,
-section#searchComms {
+section#searchComms,
+section#searchUsers {
   max-width: 1400px;
   margin: 0 auto 4rem;
   padding: 2.5rem;
@@ -26,7 +27,8 @@ section#searchComms {
 }
 
 section#FavoriteComms h2,
-section#searchComms h2 {
+section#searchComms h2,
+section#searchUsers h2 {
   font-size: $font-size-subtitle;
   font-weight: $font-weight-bold;
   color: $text-color-dark;
@@ -429,10 +431,68 @@ section#searchComms > div[role="list"] {
   border: 2px dashed $border-color;
 }
 
+/* User search results styles */
+.user-search-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.user-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: 2px solid $border-color;
+  border-radius: $border-radius-large;
+  background: $main-background-color;
+  transition: all $transition-base;
+  box-shadow: $box-shadow-sm;
+
+  &:hover,
+  &:focus {
+    transform: translateY(-4px);
+    box-shadow: $box-shadow;
+    border-color: $primary-color;
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba($primary-color, 0.3);
+    outline-offset: 2px;
+  }
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid $border-color;
+  transition: all $transition-base;
+}
+
+.user-result:hover .user-avatar,
+.user-result:focus .user-avatar {
+  border-color: $primary-color;
+  transform: scale(1.05);
+}
+
+.user-username {
+  font-weight: $font-weight-semibold;
+  color: $text-color-dark;
+  font-size: $font-size-body;
+  text-align: center;
+  word-break: break-word;
+}
+
 /* Responsive tweaks */
 @media (max-width: 768px) {
   section#FavoriteComms,
-  section#searchComms {
+  section#searchComms,
+  section#searchUsers {
     padding: 1.5rem;
     margin: 0 auto 2rem;
   }
@@ -461,8 +521,19 @@ section#searchComms > div[role="list"] {
   }
 
   section#FavoriteComms,
-  section#searchComms {
+  section#searchComms,
+  section#searchUsers {
     padding: 1rem;
+  }
+
+  .user-search-results {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .user-avatar {
+    width: 60px;
+    height: 60px;
   }
 
   section#FavoriteComms > div[role="list"],

@@ -7,9 +7,9 @@ The website will have user-made communities as pages where the owner can create 
 ### Technology:
 Front-end: React
 <br>Back-end: Node.js
-<br>Database: MySQL
+<br>Database: MongoDB
 <br>Testing: Jest
-<br>Hosting: AWS
+<br>Hosting: Google cloud
 <br>Version control: Github
 ### Collaboration plan:
 Frequency of meetings: Before/after class (roughly twice a week), meetings as needed

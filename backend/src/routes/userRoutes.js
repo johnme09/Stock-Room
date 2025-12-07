@@ -1,5 +1,5 @@
 import express from "express";
-import { body, param } from "express-validator";
+import { body, param, query } from "express-validator";
 import auth from "../middleware/auth.js";
 import validateRequest from "../middleware/validateRequest.js";
 import asyncHandler from "../utils/asyncHandler.js";
@@ -9,6 +9,37 @@ import User from "../models/User.js";
 import { HttpError } from "../utils/httpError.js";
 
 const router = express.Router();
+
+// Search users by username
+router.get(
+  "/",
+  auth({ required: false }),
+  [query("q").optional().isString()],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const { q } = req.query;
+    const filters = {};
+    if (q) {
+      filters.username = { $regex: q, $options: "i" };
+    }
+    const users = await User.find(filters).select("username image").limit(20).sort({ username: 1 });
+    res.json({ users: users.map((user) => serializeUser(user)) });
+  })
+);
+
+// Get user by ID
+router.get(
+  "/:userId",
+  [param("userId").isMongoId().withMessage("Invalid user id")],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      throw new HttpError(404, "User not found");
+    }
+    res.json({ user: serializeUser(user) });
+  })
+);
 
 router.get(
   "/me",
