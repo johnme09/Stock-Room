@@ -164,6 +164,11 @@ export default function Collection() {
 		}
 	};
 
+	const closeAddItemModal = () => {
+		setShowAddItem(false);
+		setNewItem({ title: '', description: '', image: '' });
+	};
+
 	const handleAddModerator = async (e) => {
 		e.preventDefault();
 		if (!modUsername.trim()) return;
@@ -393,42 +398,49 @@ export default function Collection() {
 			{canManage && (
 				<div style={{ textAlign: 'center', marginBottom: '2rem' }}>
 					<button
-						onClick={() => setShowAddItem(!showAddItem)}
+						onClick={() => setShowAddItem(true)}
 						style={{ padding: '0.75rem 1.5rem', background: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem' }}
 					>
-						{showAddItem ? 'Cancel Adding Item' : 'Add New Item'}
+						Add New Item
 					</button>
 				</div>
 			)}
 
 			{canManage && showAddItem && (
-				<section aria-label="Add new item" className="add-item-section">
-					<h2>Add New Item</h2>
-					<form onSubmit={handleAddItem} className="add-item-form">
-						<label htmlFor="item-title">Title</label>
-						<input
-							id="item-title"
-							value={newItem.title}
-							onChange={(e) => setNewItem((prev) => ({ ...prev, title: e.target.value }))}
-							required
-						/>
-						<label htmlFor="item-desc">Description</label>
-						<textarea
-							id="item-desc"
-							value={newItem.description}
-							onChange={(e) => setNewItem((prev) => ({ ...prev, description: e.target.value }))}
-						/>
-						<label htmlFor="item-image">Image URL</label>
-						<input
-							id="item-image"
-							value={newItem.image}
-							onChange={(e) => setNewItem((prev) => ({ ...prev, image: e.target.value }))}
-						/>
-						<button type="submit" disabled={isSavingItem}>
-							{isSavingItem ? 'Saving...' : 'Add Item'}
-						</button>
-					</form>
-				</section>
+				<div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Add new item form" onClick={closeAddItemModal}>
+					<div className="modal" onClick={(e) => e.stopPropagation()}>
+						<h3>Add New Item</h3>
+						<form onSubmit={handleAddItem}>
+							<label htmlFor="item-title">Title</label>
+							<input
+								id="item-title"
+								value={newItem.title}
+								onChange={(e) => setNewItem((prev) => ({ ...prev, title: e.target.value }))}
+								required
+							/>
+							<label htmlFor="item-desc">Description</label>
+							<textarea
+								id="item-desc"
+								value={newItem.description}
+								onChange={(e) => setNewItem((prev) => ({ ...prev, description: e.target.value }))}
+							/>
+							<label htmlFor="item-image">Image URL (optional)</label>
+							<input
+								id="item-image"
+								value={newItem.image}
+								onChange={(e) => setNewItem((prev) => ({ ...prev, image: e.target.value }))}
+							/>
+							<div className="modal-actions">
+								<button type="button" onClick={closeAddItemModal}>
+									Cancel
+								</button>
+								<button type="submit" disabled={isSavingItem}>
+									{isSavingItem ? 'Saving...' : 'Add Item'}
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
 			)}
 
 			<section aria-label="Community items" className="items-section">

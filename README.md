@@ -8,7 +8,7 @@ The website will have user-made communities as pages where the owner can create 
 Front-end: React
 <br>Back-end: Node.js
 <br>Database: MongoDB
-<br>Testing: Jest
+<br>Testing: Cypress
 <br>Hosting: Google Cloud
 <br>Version control: Github
 ### Collaboration plan:
