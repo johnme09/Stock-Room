@@ -194,8 +194,9 @@ export default function PersonalCollection() {
 					</fieldset>
 				) : (
 					<div className="readonly-status">
-						<label htmlFor={`status-text-${item.id}`} className="visually-hidden">Status</label>
-						<input id={`status-text-${item.id}`} type="text" readOnly value={statusLabel(item.status)} />
+						<span className={`status-badge status-badge--${item.status}`} aria-label={`Status: ${statusLabel(item.status)}`}>
+							{statusLabel(item.status)}
+						</span>
 					</div>
 				)}
 			</div>

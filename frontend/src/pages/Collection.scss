@@ -745,6 +745,42 @@ main[role="main"] {
     }
   }
 
+  .readonly-status {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid $border-color-light;
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: $border-radius-medium;
+      font-size: 0.9rem;
+      font-weight: $font-weight-semibold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: $box-shadow-sm;
+      transition: all $transition-base;
+
+      &--have {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: 2px solid #047857;
+      }
+
+      &--want {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border: 2px solid #1d4ed8;
+      }
+
+      &--dont_have {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        color: white;
+        border: 2px solid #374151;
+      }
+    }
+  }
+
   .add-item-section {
     max-width: 900px;
     margin: 0 auto 4rem;
