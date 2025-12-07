@@ -365,6 +365,18 @@ export default function Collection() {
 					<div role="list" aria-label="Community items" className="items-grid">
 						{items.map((item) => (
 							<article key={item.id} className="itemCard" role="listitem">
+								{canManage && (
+									<button
+										onClick={() => handleDeleteItem(item.id)}
+										className="delete-item-btn"
+										aria-label="Delete item"
+									>
+										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+											<polyline points="3 6 5 6 21 6"></polyline>
+											<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+										</svg>
+									</button>
+								)}
 								{item.image && !failedImages.has(item.id) ? (
 									<img
 										src={item.image}
@@ -385,16 +397,7 @@ export default function Collection() {
 												Added by {item.createdBy === community.ownerId ? `@${community.ownerId?.username || 'owner'}` : (item.createdBy?.username ? `@${item.createdBy.username}` : 'community')}
 											</span>
 										</div>
-										{canManage && (
-											<button
-												onClick={() => handleDeleteItem(item.id)}
-												className="delete-item-btn"
-												style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer', fontSize: '1.2rem' }}
-												aria-label="Delete item"
-											>
-												🗑️
-											</button>
-										)}
+
 									</div>
 									<p>{item.description}</p>
 									{user && (
