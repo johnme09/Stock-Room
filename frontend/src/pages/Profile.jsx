@@ -64,9 +64,12 @@ export default function Profile() {
 
 	const handleViewCollection = useCallback(
 		(communityId) => {
-			navigate(`/collection/${communityId}`);
+			// Navigate to personal collection view of the profile user
+			navigate(`/collection/personal?communityId=${communityId}`, { 
+				state: { User: displayUser } 
+			});
 		},
-		[navigate]
+		[navigate, displayUser]
 	);
 
 	if (!displayUser) {
