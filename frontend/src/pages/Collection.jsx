@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './Collection.scss';
 import { apiClient } from '../lib/apiClient.js';
@@ -25,6 +25,10 @@ export default function Collection() {
 	const { user, refreshProfile } = useAuth();
 	const navigate = useNavigate();
 	const [failedImages, setFailedImages] = useState(new Set());
+	const isFavoritingRef = useRef(false);
+	const lastSyncedFavoritesRef = useRef(null);
+	const lastInitializedCommunityIdRef = useRef(null);
+	const lastInitializedUserIdRef = useRef(null);
 
 	const handleImageError = (id) => {
 		setFailedImages((prev) => {
@@ -48,13 +52,12 @@ export default function Collection() {
 			]);
 			setCommunity(communityData);
 			setItems(communityItems);
-			setIsFavorited(user?.favorites?.includes(communityData.id) ?? false);
 		} catch (err) {
 			setError(err.message);
 		} finally {
 			setIsLoading(false);
 		}
-	}, [communityId, user]);
+	}, [communityId]);
 
 	const loadStatuses = useCallback(async () => {
 		if (!user || !communityId) {
@@ -91,7 +94,49 @@ export default function Collection() {
 
 	useEffect(() => {
 		loadCommunity();
+		// Reset favorites initialization when community changes
+		lastInitializedCommunityIdRef.current = null;
 	}, [loadCommunity]);
+
+	// Sync isFavorited state with user.favorites when community loads or user changes
+	// Only sync on initial load or when community/user changes, not on every user update
+	useEffect(() => {
+		// Don't sync if we're currently favoriting/unfavoriting
+		if (isFavoritingRef.current) {
+			return;
+		}
+		
+		if (!user || !community) {
+			setIsFavorited(false);
+			lastSyncedFavoritesRef.current = null;
+			lastInitializedCommunityIdRef.current = null;
+			lastInitializedUserIdRef.current = null;
+			return;
+		}
+		
+		const communityIdStr = String(community.id);
+		const userIdStr = String(user.id);
+		
+		// Only sync if this is a new community or a new user (e.g., after login)
+		// This prevents overwriting manual favorite updates
+		const isNewCommunity = lastInitializedCommunityIdRef.current !== communityIdStr;
+		const isNewUser = lastInitializedUserIdRef.current !== userIdStr;
+		
+		if (!isNewCommunity && !isNewUser) {
+			return;
+		}
+		
+		// Convert both IDs to strings for reliable comparison
+		const favorites = user.favorites || [];
+		const isFav = favorites.some(favId => String(favId) === communityIdStr);
+		setIsFavorited(isFav);
+		
+		// Mark as initialized for this community/user combination
+		lastInitializedCommunityIdRef.current = communityIdStr;
+		lastInitializedUserIdRef.current = userIdStr;
+		const favoritesKey = JSON.stringify(favorites.sort());
+		lastSyncedFavoritesRef.current = favoritesKey;
+	}, [user, community]);
 
 	useEffect(() => {
 		// Always load ownership counts for Community view
@@ -111,22 +156,50 @@ export default function Collection() {
 		[navigate, communityId]
 	);
 
-	const handleFavorite = useCallback(async () => {
+	const handleFavorite = useCallback(async (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		
 		if (!user || !communityId) {
 			navigate('/login');
 			return;
 		}
 
+		// Store the current state
+		const currentFavoritedState = isFavorited;
+		const newFavoritedState = !isFavorited;
+		
+		// Set flag to prevent useEffect from overwriting our update
+		isFavoritingRef.current = true;
+		
+		// Optimistically update the UI immediately for better UX
+		setIsFavorited(newFavoritedState);
+
 		try {
-			if (isFavorited) {
+			// Make the API call
+			if (currentFavoritedState) {
 				await apiClient.delete(`/users/me/favorites/${communityId}`);
 			} else {
 				await apiClient.post(`/users/me/favorites/${communityId}`);
 			}
-			setIsFavorited(!isFavorited);
-			await refreshProfile();
+			
+			// Verify the state is correct by checking the server response
+			// We keep the optimistic update since the API call succeeded
+			// The state should already be correct (newFavoritedState)
+			
+			// Refresh profile in the background to update other parts of the app
+			// Don't await - let it happen asynchronously so we don't block
+			refreshProfile().catch(err => {
+				console.error('Failed to refresh profile:', err);
+			});
+			
+			// Clear the flag - the state is already correct
+			isFavoritingRef.current = false;
 		} catch (err) {
+			// Revert optimistic update on error
+			setIsFavorited(currentFavoritedState);
 			setError(err.message);
+			isFavoritingRef.current = false;
 		}
 	}, [communityId, isFavorited, user, navigate, refreshProfile]);
 
