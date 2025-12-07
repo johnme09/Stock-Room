@@ -16,6 +16,7 @@ export default function Collection() {
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(true);
 	const [statuses, setStatuses] = useState({});
+	const [ownershipCounts, setOwnershipCounts] = useState({});
 	const [newItem, setNewItem] = useState({ title: '', description: '', image: '' });
 	const [isSavingItem, setIsSavingItem] = useState(false);
 	const [showAddItem, setShowAddItem] = useState(false);
@@ -73,13 +74,28 @@ export default function Collection() {
 		}
 	}, [communityId, user]);
 
+	const loadOwnershipCounts = useCallback(async () => {
+		if (!communityId) {
+			setOwnershipCounts({});
+			return;
+		}
+		try {
+			const data = await apiClient.get(`/communities/${communityId}/item-ownership-counts`);
+			setOwnershipCounts(data.ownershipCounts || {});
+		} catch (err) {
+			console.error(err);
+			setOwnershipCounts({});
+		}
+	}, [communityId]);
+
 	useEffect(() => {
 		loadCommunity();
 	}, [loadCommunity]);
 
 	useEffect(() => {
-		loadStatuses();
-	}, [loadStatuses]);
+		// Always load ownership counts for Community view
+		loadOwnershipCounts();
+	}, [loadOwnershipCounts]);
 
 	const handleViewChange = useCallback(
 		(e) => {
@@ -87,6 +103,8 @@ export default function Collection() {
 			setView(newView);
 			if (newView === 'Personal' && communityId) {
 				navigate(`/collection/personal?communityId=${communityId}`);
+			} else if (newView === 'Community' && communityId) {
+				navigate(`/collection/${communityId}`);
 			}
 		},
 		[navigate, communityId]
@@ -397,47 +415,12 @@ export default function Collection() {
 										)}
 									</div>
 									<p>{item.description}</p>
-									{user && (
-										<fieldset className="radioSelect" aria-label={`Item status for ${item.title}`}>
-											<legend className="visually-hidden">Select item status</legend>
-											<div>
-												<input
-													type="radio"
-													id={`want-${item.id}`}
-													name={`status-${item.id}`}
-													value="want"
-													checked={statuses[item.id] === 'want'}
-													onChange={() => handleStatusChange(item.id, 'want')}
-													aria-label="Mark as want"
-												/>
-												<label htmlFor={`want-${item.id}`}>Want</label>
-											</div>
-											<div>
-												<input
-													type="radio"
-													id={`have-${item.id}`}
-													name={`status-${item.id}`}
-													value="have"
-													checked={statuses[item.id] === 'have'}
-													onChange={() => handleStatusChange(item.id, 'have')}
-													aria-label="Mark as have"
-												/>
-												<label htmlFor={`have-${item.id}`}>Have</label>
-											</div>
-											<div>
-												<input
-													type="radio"
-													id={`dont-${item.id}`}
-													name={`status-${item.id}`}
-													value="dont_have"
-													checked={!statuses[item.id] || statuses[item.id] === 'dont_have'}
-													onChange={() => handleStatusChange(item.id, 'dont_have')}
-													aria-label="Mark as don't have"
-												/>
-												<label htmlFor={`dont-${item.id}`}>Don't Have</label>
-											</div>
-										</fieldset>
-									)}
+									{view === 'Community' ? (
+										<div className="ownership-count">
+											<span className="count-label">Owned by:</span>
+											<span className="count-value">{ownershipCounts[item.id] || 0} {ownershipCounts[item.id] === 1 ? 'user' : 'users'}</span>
+										</div>
+									) : null}
 								</div>
 							</article>
 						))}

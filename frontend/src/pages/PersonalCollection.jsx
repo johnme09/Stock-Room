@@ -311,7 +311,7 @@ export default function PersonalCollection() {
 						marginBottom: '1.5rem',
 						color: '#2d3748'
 					}}>
-						Still Searching <span style={{ fontSize: '1rem', color: '#718096', fontWeight: 'normal' }}>({dontHaveItems.length})</span>
+						Don't Have <span style={{ fontSize: '1rem', color: '#718096', fontWeight: 'normal' }}>({dontHaveItems.length})</span>
 					</h2>
 					{dontHaveItems.length === 0 ? (
 						<div className="empty-state" style={{ padding: '3rem 1rem', background: '#f8f9fa', borderRadius: '8px', textAlign: 'center' }}>

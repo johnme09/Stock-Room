@@ -5,6 +5,7 @@ import validateRequest from "../middleware/validateRequest.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import Community from "../models/Community.js";
 import Item from "../models/Item.js";
+import UserItem from "../models/UserItem.js";
 import { HttpError } from "../utils/httpError.js";
 
 const router = express.Router();
@@ -148,6 +149,57 @@ router.get(
       .sort({ createdAt: -1 })
       .populate("createdBy", "username");
     res.json({ items });
+  })
+);
+
+router.get(
+  "/:communityId/item-ownership-counts",
+  [param("communityId").isMongoId()],
+  validateRequest,
+  asyncHandler(async (req, res) => {
+    const community = await Community.findById(req.params.communityId);
+    if (!community) {
+      throw new HttpError(404, "Community not found");
+    }
+    
+    // Get all items in the community
+    const items = await Item.find({ communityId: req.params.communityId });
+    const itemIds = items.map(item => item._id);
+    
+    // Count users who have each item (status === "have")
+    const ownershipCounts = await UserItem.aggregate([
+      {
+        $match: {
+          communityId: community._id,
+          itemId: { $in: itemIds },
+          status: "have"
+        }
+      },
+      {
+        $group: {
+          _id: "$itemId",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    
+    // Create a map of itemId to count (using _id as key to match aggregation)
+    const countMap = {};
+    ownershipCounts.forEach(({ _id, count }) => {
+      countMap[_id.toString()] = count;
+    });
+    
+    // Return counts for all items (0 if no one owns it)
+    // Use item.id (from toJSON) as key to match frontend expectations
+    const result = {};
+    items.forEach(item => {
+      // item._id is the MongoDB _id, but frontend uses item.id (set by toJSON)
+      // We need to use the same format that the frontend will receive
+      const itemId = item._id.toString();
+      result[itemId] = countMap[itemId] || 0;
+    });
+    
+    res.json({ ownershipCounts: result });
   })
 );
 
