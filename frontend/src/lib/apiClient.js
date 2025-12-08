@@ -1,6 +1,8 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
+// 1) take the backend root from env, no trailing slash
+const API_ROOT = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
 
-console.log("API_BASE_URL =", API_BASE_URL, "VITE_API_URL =", import.meta.env.VITE_API_URL);
+// 2) final base URL always includes /api
+const API_BASE_URL = `${API_ROOT}/api`;
 
 const STORAGE_KEY_TOKEN = "stockroom_token";
 const STORAGE_KEY_USER = "stockroom_user";
