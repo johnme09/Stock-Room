@@ -1,10 +1,18 @@
 // 1) take the backend root from env, no trailing slash
-const API_ROOT = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
+const API_ROOT = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 
 // 2) final base URL always includes /api
-const API_BASE_URL = `${API_ROOT}/api`;
+const API_BASE_URL = API_ROOT ? `${API_ROOT}/api` : "/api";
 
-console.log("API_ROOT =", API_ROOT);
+// Validate API URL configuration
+if (!import.meta.env.VITE_API_URL) {
+  console.warn(
+    "⚠️ VITE_API_URL is not set! API calls may fail. " +
+    "Set VITE_API_URL in your environment variables (e.g., https://stock-room.onrender.com)"
+  );
+}
+
+console.log("API_ROOT =", API_ROOT || "(not set)");
 console.log("API_BASE_URL =", API_BASE_URL);
 
 
