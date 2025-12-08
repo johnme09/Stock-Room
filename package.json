@@ -1,0 +1,31 @@
+{
+	"name": "tests",
+	"version": "1.0.0",
+	"description": "Stock Room API server",
+	"main": "src/server.js",
+	"type": "module",
+	"scripts": {
+		"dev": "nodemon src/server.js",
+		"start": "node src/server.js",
+		"init:users": "node src/scripts/initializeUserImages.js",
+		"lint": "echo \"No backend linter configured\"",
+		"test:unit": "mocha testing/unit --recursive --exit",
+		"start:frontend": "npm --prefix frontend run dev",
+        "cypress:open": "cypress open --config-file testing/e2e/cypress.config.cjs",
+		"cypress:run": "cypress run --config-file testing/e2e/cypress.config.cjs",
+		"e2e": "start-server-and-test start:frontend http://localhost:5173 cypress:run",
+		"test": "npm run test:unit && npm run e2e"
+	},
+	"devDependencies": {
+		"chai": "^4.5.0",
+		"cypress": "^13.17.0",
+		"jsonwebtoken": "^9.0.3",
+		"mocha": "^10.8.2",
+		"sinon": "^15.2.0",
+		"start-server-and-test": "^2.1.3",
+		"supertest": "^6.3.4"
+	},
+	"dependencies": {
+		"express": "^5.2.1"
+	}
+}
