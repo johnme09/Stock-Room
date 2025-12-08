@@ -3,6 +3,11 @@ import cors from "cors";
 import morgan from "morgan";
 import routes from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -22,6 +27,15 @@ app.use(morgan("dev"));
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
+
+if (process.env.NODE_ENV === 'production') {
+  const clientBuildPath = path.join(__dirname, '../dist');
+  app.use(express.static(clientBuildPath));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(clientBuildPath, 'index.html'));
+  });
+}
 
 app.use("/api", routes);
 
