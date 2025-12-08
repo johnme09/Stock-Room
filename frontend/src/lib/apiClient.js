@@ -1,5 +1,6 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:4000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
+
+console.log("API_BASE_URL =", API_BASE_URL, "VITE_API_URL =", import.meta.env.VITE_API_URL);
 
 const STORAGE_KEY_TOKEN = "stockroom_token";
 const STORAGE_KEY_USER = "stockroom_user";
@@ -28,7 +29,10 @@ export const storage = {
   },
 };
 
-export const apiRequest = async (path, { method = "GET", data, token, headers } = {}) => {
+export const apiRequest = async (
+  path,
+  { method = "GET", data, token, headers } = {}
+) => {
   const config = {
     method,
     headers: {
@@ -60,9 +64,11 @@ export const apiRequest = async (path, { method = "GET", data, token, headers } 
 
 export const apiClient = {
   get: (path, options) => apiRequest(path, { ...options, method: "GET" }),
-  post: (path, data, options) => apiRequest(path, { ...options, method: "POST", data }),
-  put: (path, data, options) => apiRequest(path, { ...options, method: "PUT", data }),
-  patch: (path, data, options) => apiRequest(path, { ...options, method: "PATCH", data }),
+  post: (path, data, options) =>
+    apiRequest(path, { ...options, method: "POST", data }),
+  put: (path, data, options) =>
+    apiRequest(path, { ...options, method: "PUT", data }),
+  patch: (path, data, options) =>
+    apiRequest(path, { ...options, method: "PATCH", data }),
   delete: (path, options) => apiRequest(path, { ...options, method: "DELETE" }),
 };
-
