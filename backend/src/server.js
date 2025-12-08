@@ -1,19 +1,11 @@
 import dotenv from "dotenv";
 import app from "./app.js";
 import connectDB from "./config/db.js";
-import cors from "cors";
 
 dotenv.config();
 
-app.use(
-  cors({
-    origin: true,          // reflect the request Origin header
-    credentials: true,     // allow cookies / auth headers
-  })
-);
-
 const PORT = process.env.PORT || 4000;
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = "mongodb+srv://shared_team_user:sPen4m55fw1Eha8Y@cluster0.pbgatsr.mongodb.net/stock-room";
 
 const start = async () => {
   try {
@@ -27,4 +19,5 @@ const start = async () => {
   }
 };
 
-start(); 
+start();
+

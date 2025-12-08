@@ -59,7 +59,7 @@ export default function Login() {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [formData, validateForm, navigate, login]);
+	}, [formData, validateForm, navigate]);
 
 	const handleKeyDown = useCallback((e) => {
 		if (e.key === 'Enter') {
