@@ -1,11 +1,13 @@
-import express from "express";
-import request from "supertest";
-import sinon from "sinon";
-import { expect } from "chai";
-import path from "path";
-import url from "url";
+const express = require("express");
+const request = require("supertest");
+const sinon = require("sinon");
+const { expect } = require("chai");
+const path = require("path");
+const url = require("url");
+const jwt = require("jsonwebtoken");
 
-// ESM import helper
+process.env.JWT_SECRET = process.env.JWT_SECRET || "J6h5ZjDy9LSWqcM0x5SPqBhDohF77074";
+
 const importEsm = async (relPath) => {
   const absPath = path.resolve(__dirname, "..", "..", relPath);
   const moduleUrl = url.pathToFileURL(absPath).href;
@@ -17,8 +19,9 @@ describe("Community creation", function () {
   let communityRoutes;
   let Community;
   let User;
-  let tokenUtil;
   let sandbox;
+
+  const testUserId = "222222222222222222222222";
 
   before(async function () {
     const routesMod = await importEsm("backend/src/routes/communityRoutes.js");
@@ -30,10 +33,9 @@ describe("Community creation", function () {
     const userMod = await importEsm("backend/src/models/User.js");
     User = userMod.default;
 
-    tokenUtil = await importEsm("backend/src/utils/token.js");
-
     app = express();
     app.use(express.json());
+
     app.use("/communities", communityRoutes);
   });
 
@@ -46,35 +48,37 @@ describe("Community creation", function () {
   });
 
   it("creates a new community with the authenticated user as owner", async function () {
-    const userId = "222222222222222222222222";
-    const fakeToken = "faketoken";
+    // Create a real JWT that your auth middleware will accept
+    // Adjust payload field if your token.js uses a different key
+    const payload = { id: testUserId };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-    // Stub token verification and User.findById
-    sandbox.stub(tokenUtil, "verifyToken").returns({ sub: userId });
-    sandbox.stub(User, "findById").resolves({ id: userId });
+    // Stub DB calls
+    sandbox
+      .stub(User, "findById")
+      .resolves({ id: testUserId, _id: testUserId });
 
-    // Stub Community.create to return the created community
     const createdCommunity = {
       id: "community-1",
       title: "Pokemon Collection",
       description: "Share and trade Pokemon cards",
       image: "https://example.com/pokemon.jpg",
-      ownerId: userId,
+      ownerId: testUserId,
     };
     sandbox.stub(Community, "create").resolves(createdCommunity);
 
     const res = await request(app)
       .post("/communities")
-      .set("Authorization", `Bearer ${fakeToken}`)
+      .set("Authorization", `Bearer ${token}`) // 🔑 real auth header
       .send({
         title: "Pokemon Collection",
         description: "Share and trade Pokemon cards",
         image: "https://example.com/pokemon.jpg",
       })
-      .expect(201);
+      .expect(201); // should now be "Created", not 401
 
     expect(res.body).to.have.property("community");
     expect(res.body.community.title).to.equal("Pokemon Collection");
-    expect(res.body.community.ownerId).to.equal(userId);
+    expect(res.body.community.ownerId).to.equal(testUserId);
   });
 });
