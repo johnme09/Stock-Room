@@ -4,16 +4,24 @@ const API_ROOT = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 // 2) final base URL always includes /api
 const API_BASE_URL = API_ROOT ? `${API_ROOT}/api` : "/api";
 
+// Debug: Log the raw environment variable value
+console.log("🔍 DEBUG - VITE_API_URL (raw) =", import.meta.env.VITE_API_URL);
+console.log("🔍 DEBUG - API_ROOT =", API_ROOT || "(not set)");
+console.log("🔍 DEBUG - API_BASE_URL =", API_BASE_URL);
+
 // Validate API URL configuration
 if (!import.meta.env.VITE_API_URL) {
-  console.warn(
-    "⚠️ VITE_API_URL is not set! API calls may fail. " +
-    "Set VITE_API_URL in your environment variables (e.g., https://stock-room.onrender.com)"
+  console.error(
+    "❌ ERROR: VITE_API_URL is not set! API calls will fail. " +
+    "Set VITE_API_URL in Vercel environment variables to: https://stock-room.onrender.com"
+  );
+} else if (import.meta.env.VITE_API_URL.includes("/api")) {
+  console.error(
+    "❌ ERROR: VITE_API_URL should NOT include /api! " +
+    `Current value: ${import.meta.env.VITE_API_URL}. ` +
+    "Should be: https://stock-room.onrender.com (without /api)"
   );
 }
-
-console.log("API_ROOT =", API_ROOT || "(not set)");
-console.log("API_BASE_URL =", API_BASE_URL);
 
 
 const STORAGE_KEY_TOKEN = "stockroom_token";
