@@ -1,21 +1,19 @@
 describe('Authentication', () => {
     const testUser = {
-        username: `testuser_${Date.now()}`,
-        email: `testuser_${Date.now()}@example.com`,
+        username: 'cypress_test_user',
+        email: 'cypress_test_user@example.com',
         password: 'password123'
     };
 
-    it('should register a new user', () => {
-        cy.visit('/signup');
-        cy.get('input[name="username"]').type(testUser.username);
-        cy.get('input[name="email"]').type(testUser.email);
-        cy.get('input[name="password"]').type(testUser.password);
-        cy.get('button[type="submit"]').click();
-
-        // Should redirect to login or home, depending on flow. 
-        // Assuming redirect to login after registration or auto-login.
-        // Let's check for URL or UI element.
-        cy.url().should('include', '/');
+    before(() => {
+        cy.request({
+            method: 'POST',
+            url: 'http://localhost:4000/api/auth/register',
+            body: testUser,
+            failOnStatusCode: false,
+        }).then((res) => {
+            expect([200, 201, 400, 409]).to.include(res.status);
+        });
     });
 
     it('should login with valid credentials', () => {
@@ -24,11 +22,15 @@ describe('Authentication', () => {
         cy.get('input[name="password"]').type(testUser.password);
         cy.get('button[type="submit"]').click();
 
-        cy.url().should('eq', Cypress.config().baseUrl + '/');
-        // Verify user is logged in (e.g., check for profile link or logout button)
-        // Adjust selector based on actual UI
-        cy.contains('Profile').should('be.visible');
+
+        cy.location('pathname').should('eq', '/');
+
+
+        cy.contains(`Hi, ${testUser.username}`).should('be.visible');
+
     });
+
+
 
     it('should show error for invalid credentials', () => {
         cy.visit('/login');
@@ -36,17 +38,24 @@ describe('Authentication', () => {
         cy.get('input[name="password"]').type('wrongpassword');
         cy.get('button[type="submit"]').click();
 
-        cy.contains('Invalid credentials').should('be.visible'); // Adjust error message text
+        cy.contains('Invalid email or password').should('be.visible');
+        cy.location('pathname').should('eq', '/login');
     });
 
     it('should logout successfully', () => {
-        // Login first
         cy.login(testUser.email, testUser.password);
 
-        // Perform logout
-        cy.get('button').contains('Logout').click(); // Adjust selector
 
-        cy.url().should('include', '/login');
-        cy.contains('Login').should('be.visible');
+        cy.get('button[aria-label="Toggle navigation menu"]').click();
+
+        cy.contains('nav[aria-label="Main navigation"] *', 'Log out').click();
+
+        cy.location('pathname').should('eq', '/');
+
+        cy.contains('Log in to track your favorite communities').should('be.visible');
+
     });
+
+
+
 });
