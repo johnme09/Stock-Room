@@ -9,7 +9,7 @@
     "start": "node src/server.js",
     "init:users": "node src/scripts/initializeUserImages.js",
     "lint": "echo \"No backend linter configured\"",
-    "test:unit": "mocha"
+
   },
   "keywords": [],
   "author": "",
@@ -29,6 +29,7 @@
     "mocha": "^10.2.0",
     "chai": "^4.3.7",
     "sinon": "^15.0.0",
-    "supertest": "^6.4.0"
+    "supertest": "^6.3.4",
+    "cypress": "^13.0.0" 
   }
 }
