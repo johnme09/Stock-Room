@@ -5,7 +5,6 @@ import cors from "cors";
 
 dotenv.config();
 
-// 🚨 Simple, permissive CORS (works for Vercel + local dev)
 app.use(
   cors({
     origin: true,          // reflect the request Origin header

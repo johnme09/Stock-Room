@@ -4,6 +4,10 @@ const API_ROOT = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
 // 2) final base URL always includes /api
 const API_BASE_URL = `${API_ROOT}/api`;
 
+console.log("API_ROOT =", API_ROOT);
+console.log("API_BASE_URL =", API_BASE_URL);
+
+
 const STORAGE_KEY_TOKEN = "stockroom_token";
 const STORAGE_KEY_USER = "stockroom_user";
 
@@ -53,6 +57,7 @@ export const apiRequest = async (
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, config);
+  console.log("FETCH →", `${API_BASE_URL}${path}`);
   const isJson = response.headers.get("content-type")?.includes("application/json");
   const payload = isJson ? await response.json() : null;
 
