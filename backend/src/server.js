@@ -1,8 +1,17 @@
 import dotenv from "dotenv";
 import app from "./app.js";
 import connectDB from "./config/db.js";
+import cors from "cors";
 
 dotenv.config();
+
+// 🚨 Simple, permissive CORS (works for Vercel + local dev)
+app.use(
+  cors({
+    origin: true,          // reflect the request Origin header
+    credentials: true,     // allow cookies / auth headers
+  })
+);
 
 const PORT = process.env.PORT || 4000;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -20,4 +29,3 @@ const start = async () => {
 };
 
 start();
-
