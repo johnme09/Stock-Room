@@ -13,7 +13,7 @@ const app = express();
 
 const allowedOrigins = process.env.CLIENT_ORIGIN
   ? process.env.CLIENT_ORIGIN.split(",").map((origin) => origin.trim())
-  : ["https://frontend-1078634816222.us-central1.run.app/"];
+  : ["http://localhost:4000"];
 
 app.use(
   cors({
@@ -30,16 +30,38 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api", routes);
 
-app.use((_req, res) => {
-  res.status(404).json({ message: "Route not found" });
+// Serve static files from the frontend build
+const staticPath = path.join(__dirname, '../../frontend/dist');
+console.log('Serving static files from:', staticPath);
+
+// First, try to serve static files
+app.use(express.static(staticPath));
+
+// Then handle API 404 (AFTER static files but BEFORE SPA route)
+app.use("/api", (_req, res) => {
+  res.status(404).json({ message: "API route not found" });
+});
+
+// SPA fallback - ONLY for non-API, non-file routes
+app.get(/^\/(.*)$/, (req, res) => {
+  // Skip if it's an API route (should have been caught above)
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ message: "API route not found" });
+  }
+
+  // Serve the SPA
+  res.sendFile(path.join(staticPath, 'index.html'));
 });
 
 app.use((err, req, res, next) => {
-  console.error('Server Error:', err); 
-  res.status(500).json({ error: 'Internal Server Error' });
+  console.error('=== ERROR DETAILS ===');
+  console.error('Path:', req.path);
+  console.error('Error:', err.message);
+  console.error('Stack:', err.stack);
+  console.error('===================');
+  next(err);
 });
 
 app.use(errorHandler);
 
 export default app;
-
