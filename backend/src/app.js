@@ -12,12 +12,12 @@ const allowedOrigins = process.env.CLIENT_ORIGIN
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      callback(null, true); // allow ALL origins
+    },
     credentials: true,
   })
 );
-app.use(express.json());
-app.use(morgan("dev"));
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
