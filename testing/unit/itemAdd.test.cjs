@@ -1,9 +1,12 @@
-import express from "express";
-import request from "supertest";
-import sinon from "sinon";
-import { expect } from "chai";
-import path from "path";
-import url from "url";
+const express = require("express");
+const request = require("supertest");
+const sinon = require("sinon");
+const { expect } = require("chai");
+const path = require("path");
+const url = require("url");
+const jwt = require("jsonwebtoken");
+
+process.env.JWT_SECRET = process.env.JWT_SECRET || "test-secret-key";
 
 // ESM import helper
 const importEsm = async (relPath) => {
@@ -52,17 +55,16 @@ describe("Item addition to collection", function () {
   it("allows the community owner to add a new item to the collection", async function () {
     const communityId = "64a5f1c8d3f1a2b3c4d5e6f7";
     const ownerId = "111111111111111111111111";
-    const fakeToken = "faketoken";
 
-    // Stub token verification and User.findById
-    sandbox.stub(tokenUtil, "verifyToken").returns({ sub: ownerId });
+    const token = jwt.sign({ id: ownerId }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
     sandbox.stub(User, "findById").resolves({ id: ownerId });
 
-    // Stub Community.findById to return a community owned by the authenticated user
     const community = { id: communityId, ownerId: ownerId };
     sandbox.stub(Community, "findById").resolves(community);
 
-    // Stub Item.create to return the created item
     const createdItem = {
       id: "item-1",
       communityId,
@@ -75,7 +77,7 @@ describe("Item addition to collection", function () {
 
     const res = await request(app)
       .post(`/communities/${communityId}/items`)
-      .set("Authorization", `Bearer ${fakeToken}`)
+      .set("Authorization", `Bearer ${token}`)
       .send({
         title: "Rare Pokemon Card",
         description: "First edition holographic",

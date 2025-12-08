@@ -1,9 +1,12 @@
-import express from "express";
-import request from "supertest";
-import sinon from "sinon";
-import { expect } from "chai";
-import path from "path";
-import url from "url";
+const express = require("express");
+const request = require("supertest");
+const sinon = require("sinon");
+const { expect } = require("chai");
+const path = require("path");
+const url = require("url");
+const jwt = require("jsonwebtoken");
+
+process.env.JWT_SECRET = process.env.JWT_SECRET || "test-secret-key";
 
 // ESM import helper
 const importEsm = async (relPath) => {
@@ -51,7 +54,9 @@ describe("Personal collection behavior", function () {
     const profileUserId = "222222222222222222222222";
 
     // Stub token verification and User.findById so the auth middleware authenticates a logged-in user
-    sandbox.stub(tokenUtil, "verifyToken").returns({ sub: loggedInUserId });
+    const token = jwt.sign({ id: loggedInUserId }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
     sandbox.stub(User, "findById").resolves({ id: loggedInUserId });
 
     // Fake user-items for the profile user (profileUserId)
@@ -70,7 +75,7 @@ describe("Personal collection behavior", function () {
 
     const res = await request(app)
       .get(`/user-items?communityId=${communityId}&userId=${profileUserId}`)
-      .set("Authorization", "Bearer faketoken")
+      .set("Authorization", `Bearer ${token}`)
       .expect(200);
 
     // Verify the model was queried with the requested user's id, not the logged-in user

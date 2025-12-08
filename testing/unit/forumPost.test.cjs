@@ -1,9 +1,12 @@
-import express from "express";
-import request from "supertest";
-import sinon from "sinon";
-import { expect } from "chai";
-import path from "path";
-import url from "url";
+const express = require("express");
+const request = require("supertest");
+const sinon = require("sinon");
+const { expect } = require("chai");
+const path = require("path");
+const url = require("url");
+const jwt = require("jsonwebtoken");
+
+process.env.JWT_SECRET = process.env.JWT_SECRET || "J6h5ZjDy9LSWqcM0x5SPqBhDohF77074";
 
 /// ESM import helper
 const importEsm = async (relPath) => {
@@ -22,7 +25,6 @@ describe("Forum post routes", function () {
   let sandbox;
 
   before(async function () {
-    // Dynamically import ESM modules used by the router
     const routesMod = await importEsm("backend/src/routes/communityRoutes.js");
     communityRoutes = routesMod.default;
 
@@ -52,16 +54,13 @@ describe("Forum post routes", function () {
 
   it("GET /:communityId/posts returns posts for existing community", async function () {
     const communityId = "64a5f1c8d3f1a2b3c4d5e6f7";
-    // Stub Community.findById to return a community
     sandbox.stub(Community, "findById").resolves({ id: communityId });
 
-    // Prepare fake posts array
     const posts = [
       { id: "1", content: "hello", authorId: { username: "alice", image: "img1" } },
       { id: "2", content: "world", authorId: { username: "bob", image: "img2" } },
     ];
 
-    // Stub ForumPost.find to return an object with chainable sort().populate()
     sandbox.stub(ForumPost, "find").returns({
       sort: () => ({
         populate: () => Promise.resolve(posts),
@@ -76,24 +75,19 @@ describe("Forum post routes", function () {
 
   it("POST /:communityId/posts creates a post and populates author", async function () {
     const communityId = "64a5f1c8d3f1a2b3c4d5e6f7";
-    const fakeToken = "faketoken";
+    const userId = "userid123";
 
-    // Stub verifyToken to accept our token and return a payload
-    sandbox.stub(tokenUtil, "verifyToken").returns({ sub: "userid123" });
+    const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-    // Stub User.findById to return the user object that auth middleware expects
-    sandbox.stub(User, "findById").resolves({ id: "userid123", username: "alice", image: "img1" });
+    sandbox.stub(User, "findById").resolves({ id: userId, username: "alice", image: "img1" });
 
-    // Stub Community.findById to return a community
     sandbox.stub(Community, "findById").resolves({ id: communityId, ownerId: "ownerid" });
 
-    // Stub ForumPost.create to return an object that has a populate method
     const created = {
       id: "postid",
       content: "A new post",
-      authorId: "userid123",
-      populate: function (field, fields) {
-        // Simulate populate by attaching author details
+      authorId: userId,
+      populate: function () {
         this.authorId = { username: "alice", image: "img1" };
         return Promise.resolve(this);
       },
@@ -103,7 +97,7 @@ describe("Forum post routes", function () {
 
     const res = await request(app)
       .post(`/communities/${communityId}/posts`)
-      .set("Authorization", `Bearer ${fakeToken}`)
+      .set("Authorization", `Bearer ${token}`)
       .send({ content: "A new post" })
       .expect(201);
 
