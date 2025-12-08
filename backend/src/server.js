@@ -6,7 +6,8 @@ import cors from "cors";
 dotenv.config();
 
 // CORS SETUP FOR DEPLOYMENT
-const allowedOrigin = process.env.CLIENT_URL || "http://localhost:5173";
+const rawClientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+const allowedOrigin = rawClientUrl.replace(/\/$/, "");
 
 app.use(
   cors({
