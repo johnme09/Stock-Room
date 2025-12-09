@@ -9,10 +9,10 @@
 		"start": "node src/server.js",
 		"init:users": "node src/scripts/initializeUserImages.js",
 		"lint": "echo \"No backend linter configured\"",
-		"test:unit": "mocha testing/unit --recursive --exit",
+		"test:unit": "mocha unit --recursive --exit",
 		"start:frontend": "npm --prefix frontend run dev",
-        "cypress:open": "cypress open --config-file testing/e2e/cypress.config.cjs",
-		"cypress:run": "cypress run --config-file testing/e2e/cypress.config.cjs",
+		"cypress:open": "cypress open --config-file e2e/cypress.config.cjs",
+		"cypress:run": "cypress run --config-file e2e/cypress.config.cjs",
 		"e2e": "start-server-and-test start:frontend http://localhost:5173 cypress:run",
 		"test": "npm run test:unit && npm run e2e"
 	},
@@ -26,6 +26,12 @@
 		"supertest": "^6.3.4"
 	},
 	"dependencies": {
-		"express": "^5.2.1"
+		"bcryptjs": "^3.0.3",
+		"cors": "^2.8.5",
+		"dotenv": "^17.2.3",
+		"express": "^5.2.1",
+		"express-validator": "^7.3.1",
+		"mongoose": "^9.0.1",
+		"morgan": "^1.10.1"
 	}
 }

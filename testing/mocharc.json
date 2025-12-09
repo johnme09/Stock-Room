@@ -1,0 +1,11 @@
+{
+  "require": [],
+  "spec": "unit/**/*.test.cjs",
+  "extension": ["cjs"],
+  "ignore": ["cypress/**"],
+  "timeout": 5000,
+  "slow": 3000,
+  "reporter": "spec",
+  "exit": true,
+  "recursive": true
+}
