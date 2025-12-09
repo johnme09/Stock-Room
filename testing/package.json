@@ -10,10 +10,9 @@
 		"init:users": "node src/scripts/initializeUserImages.js",
 		"lint": "echo \"No backend linter configured\"",
 		"test:unit": "mocha unit --recursive --exit",
-		"start:frontend": "npm --prefix frontend run dev",
 		"cypress:open": "cypress open --config-file e2e/cypress.config.cjs",
 		"cypress:run": "cypress run --config-file e2e/cypress.config.cjs",
-		"e2e": "start-server-and-test start:frontend http://localhost:5173 cypress:run",
+		"e2e": "cypress run --config-file e2e/cypress.config.cjs",
 		"test": "npm run test:unit && npm run e2e"
 	},
 	"devDependencies": {
