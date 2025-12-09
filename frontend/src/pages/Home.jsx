@@ -165,16 +165,42 @@ export default function Home() {
 
 	return (
 		<main role="main">
-			<div className="create-community-container">
-				<button
-					type="button"
-					id="create-community-btn"
-					onClick={handleCreateCommunity}
-					aria-label="Create a new community"
-				>
-					Create your own community
-				</button>
-			</div>
+			<section className="welcome-panel" aria-labelledby="welcome-heading">
+				<h1 id="welcome-heading">Welcome to Stockroom!</h1>
+				<div className="welcome-content">
+					<p className="welcome-description">
+						Stockroom is your centralized hub for tracking collectibles and connecting with fellow collectors. 
+						Create or join communities for any type of collection—from Pokémon cards and vinyl records to 
+						digital comics and plushies.
+					</p>
+					<div className="welcome-features">
+						<div className="welcome-feature">
+							<h3>📦 Track Your Collection</h3>
+							<p>Mark items as "have", "want", or "don't have" to keep track of what's in your collection without manually checking.</p>
+						</div>
+						<div className="welcome-feature">
+							<h3>👥 Join Communities</h3>
+							<p>Discover communities created by other collectors, or create your own to share your passion with others.</p>
+						</div>
+						<div className="welcome-feature">
+							<h3>💬 Connect & Discuss</h3>
+							<p>Engage in forum-style discussions about finding collectibles, maintenance tips, and more with moderated communities.</p>
+						</div>
+					</div>
+					<div className="welcome-cta">
+						<p>Ready to start? Create your own community or search for existing ones below!</p>
+						<button
+							type="button"
+							id="create-community-btn"
+							onClick={handleCreateCommunity}
+							aria-label="Create a new community"
+							className="welcome-create-btn"
+						>
+							Create your own community
+						</button>
+					</div>
+				</div>
+			</section>
 
 			<section id="FavoriteComms" aria-labelledby="fav-heading">
 				<div className="section-header">

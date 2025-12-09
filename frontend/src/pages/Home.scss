@@ -2,6 +2,171 @@
 
 // Home page grid & community card styles
 
+// Welcome panel styles
+.welcome-panel {
+  max-width: 1400px;
+  margin: 0 auto 3rem;
+  padding: 3rem 2.5rem;
+  background: linear-gradient(135deg, rgba($primary-color, 0.05) 0%, rgba($secondary-color, 0.05) 100%);
+  border-radius: $border-radius-large;
+  box-shadow: $box-shadow-md;
+  border: 1px solid rgba($primary-color, 0.1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, $primary-color 0%, $secondary-color 50%, $tertiary-color 100%);
+  }
+}
+
+.welcome-panel h1 {
+  font-size: 2.5rem;
+  font-weight: $font-weight-bold;
+  color: $text-color-dark;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+  background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.welcome-description {
+  font-size: $font-size-body;
+  line-height: $line-height-relaxed;
+  color: $text-color-medium;
+  text-align: center;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.welcome-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin: 1rem 0;
+}
+
+.welcome-feature {
+  padding: 1.5rem;
+  background: $main-background-color;
+  border-radius: $border-radius-medium;
+  border: 1px solid $border-color;
+  box-shadow: $box-shadow-sm;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $box-shadow;
+    border-color: $primary-color;
+  }
+
+  h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.2rem;
+    font-weight: $font-weight-semibold;
+    color: $text-color-dark;
+  }
+
+  p {
+    margin: 0;
+    font-size: $font-size-body;
+    line-height: $line-height-relaxed;
+    color: $text-color-medium;
+  }
+}
+
+.welcome-cta {
+  text-align: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid $border-color-light;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+
+  p {
+    font-size: $font-size-body;
+    color: $text-color-dark;
+    margin: 0;
+  }
+}
+
+.welcome-create-btn {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-color-hover 100%);
+  color: $text-color-white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: $border-radius-medium;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: $box-shadow-sm;
+  font-size: $font-size-body;
+  white-space: nowrap;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $box-shadow;
+    background: linear-gradient(135deg, $primary-color-hover 0%, $primary-color 100%);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Remove the old standalone create-community-container styles since button is now integrated */
+.create-community-container {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .welcome-panel {
+    padding: 2rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .welcome-panel h1 {
+    font-size: 2rem;
+  }
+
+  .welcome-features {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .welcome-description {
+    font-size: $font-size-body;
+  }
+}
+
+@media (max-width: 520px) {
+  .welcome-panel {
+    padding: 1.5rem 1rem;
+  }
+
+  .welcome-panel h1 {
+    font-size: 1.75rem;
+  }
+
+  .welcome-feature {
+    padding: 1.25rem;
+  }
+}
+
 section#FavoriteComms,
 section#searchComms,
 section#searchUsers {
