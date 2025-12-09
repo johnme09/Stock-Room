@@ -1,0 +1,10 @@
+{
+  "require": [],
+  "spec": "backend/**/unit/**/*.test.js",
+  "ignore": ["cypress/**"],
+  "timeout": 5000,
+  "slow": 3000,
+  "reporter": "spec",
+  "exit": true,
+  "recursive": true
+}
