@@ -7,7 +7,6 @@ describe('End-to-end: Search community, view item, and mark as wanted', () => {
         password: testPassword
     };
   before(() => {
-<<<<<<< HEAD
     // Ensure test user exists via backend API (backend server runs on port 4000)
     cy.request({
         method: 'POST',
@@ -17,16 +16,6 @@ describe('End-to-end: Search community, view item, and mark as wanted', () => {
       }).then((res) => {
         expect([200, 201, 400, 409]).to.include(res.status);
       });
-=======
-    cy.request({
-            method: 'POST',
-            url: 'http://localhost:5173/api/auth/register',
-            body: testUser,
-            failOnStatusCode: false,
-        }).then((res) => {
-            expect([200, 201, 400, 409]).to.include(res.status);
-        });
->>>>>>> 7cf7a8db00e6c646646dc3ddf2bbc3fe9a76e272
     cy.visit('/login');
   });
 
@@ -37,11 +26,7 @@ describe('End-to-end: Search community, view item, and mark as wanted', () => {
     cy.get('button.auth-button').contains(/login/i).click();
 
     // Wait for redirect and verify logged in (frontend default port)
-<<<<<<< HEAD
     cy.url().should('eq', 'http://localhost:5173/');
-=======
-    cy.url().should('eq', 'http://localhost:5173/login');
->>>>>>> 7cf7a8db00e6c646646dc3ddf2bbc3fe9a76e272
 
     // 2. Search for a community with partial search using explicit IDs
     cy.get('#community-search').type('Pokemon');
