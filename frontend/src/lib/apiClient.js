@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:4000/api";
+  "/api";
 
 const STORAGE_KEY_TOKEN = "stockroom_token";
 const STORAGE_KEY_USER = "stockroom_user";
