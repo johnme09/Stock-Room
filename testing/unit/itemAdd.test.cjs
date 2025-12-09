@@ -72,6 +72,10 @@ describe("Item addition to collection", function () {
       description: "First edition holographic",
       image: "https://example.com/card.jpg",
       createdBy: ownerId,
+      populate: function () {
+        // mimic mongoose Document.populate API without changing createdBy
+        return Promise.resolve(this);
+      },
     };
     sandbox.stub(Item, "create").resolves(createdItem);
 
