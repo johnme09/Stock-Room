@@ -1,17 +1,19 @@
 describe('Users API Tests', () => {
-  const baseUrl = 'http://localhost:4000/api';
+  const baseUrl = Cypress.env('apiBaseUrl') || 'https://stockroom-1078634816222.us-central1.run.app/api';
+  
   let authToken = null;
   let testUserId = null;
   let testCommunityId = null;
 
+  const timestamp = Date.now();
   const testUser = {
-    username: `usertest_${Date.now()}`,
-    email: `user_${Date.now()}@example.com`,
+    username: `usertest_${timestamp}`,
+    email: `user_${timestamp}@example.com`,
     password: 'testpassword123'
   };
 
   const testCommunity = {
-    title: `User Test Community ${Date.now()}`,
+    title: `User Test Community ${timestamp}`,
     description: 'Community for user testing'
   };
 
@@ -22,6 +24,7 @@ describe('Users API Tests', () => {
       url: `${baseUrl}/auth/register`,
       body: testUser
     }).then((response) => {
+      expect(response.status).to.eq(201);
       authToken = response.body.token;
       testUserId = response.body.user.id;
       
@@ -32,6 +35,7 @@ describe('Users API Tests', () => {
         body: testCommunity
       });
     }).then((response) => {
+      expect(response.status).to.eq(201);
       testCommunityId = response.body.community.id;
     });
   });

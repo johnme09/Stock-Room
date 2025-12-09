@@ -13,6 +13,7 @@
 		"cypress:open": "cypress open --config-file e2e/cypress.config.cjs",
 		"cypress:run": "cypress run --config-file e2e/cypress.config.cjs",
 		"e2e": "cypress run --config-file e2e/cypress.config.cjs",
+		"e2e:deployed": "API_BASE_URL=https://stockroom-1078634816222.us-central1.run.app/api cypress run --config-file e2e/cypress.config.cjs",
 		"test": "npm run test:unit && npm run e2e"
 	},
 	"devDependencies": {

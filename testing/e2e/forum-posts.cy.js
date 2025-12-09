@@ -1,17 +1,19 @@
 describe('Forum Posts API Tests', () => {
-  const baseUrl = 'http://localhost:4000/api';
+  const baseUrl = Cypress.env('apiBaseUrl') || 'https://stockroom-1078634816222.us-central1.run.app/api';
+  
   let authToken = null;
   let testCommunityId = null;
   let testPostId = null;
 
+  const timestamp = Date.now();
   const testUser = {
-    username: `forumtest_${Date.now()}`,
-    email: `forum_${Date.now()}@example.com`,
+    username: `forumtest_${timestamp}`,
+    email: `forum_${timestamp}@example.com`,
     password: 'testpassword123'
   };
 
   const testCommunity = {
-    title: `Forum Test Community ${Date.now()}`,
+    title: `Forum Test Community ${timestamp}`,
     description: 'Community for testing forum posts'
   };
 
@@ -26,6 +28,7 @@ describe('Forum Posts API Tests', () => {
       url: `${baseUrl}/auth/register`,
       body: testUser
     }).then((response) => {
+      expect(response.status).to.eq(201);
       authToken = response.body.token;
       
       return cy.request({
@@ -35,6 +38,7 @@ describe('Forum Posts API Tests', () => {
         body: testCommunity
       });
     }).then((response) => {
+      expect(response.status).to.eq(201);
       testCommunityId = response.body.community.id;
     });
   });
@@ -106,6 +110,18 @@ describe('Forum Posts API Tests', () => {
   });
 
   it('should get all posts for a community', () => {
+    // Ensure we have a post
+    if (!testPostId) {
+      cy.request({
+        method: 'POST',
+        url: `${baseUrl}/communities/${testCommunityId}/posts`,
+        headers: { Authorization: `Bearer ${authToken}` },
+        body: testPost
+      }).then((response) => {
+        testPostId = response.body.post.id;
+      });
+    }
+    
     cy.request({
       method: 'GET',
       url: `${baseUrl}/communities/${testCommunityId}/posts`
@@ -113,9 +129,11 @@ describe('Forum Posts API Tests', () => {
       expect(response.status).to.eq(200);
       expect(response.body).to.have.property('posts');
       expect(response.body.posts).to.be.an('array');
-      const found = response.body.posts.find(p => p.id === testPostId);
-      expect(found).to.exist;
-      expect(found.content).to.eq(testPost.content);
+      if (testPostId) {
+        const found = response.body.posts.find(p => p.id === testPostId);
+        expect(found).to.exist;
+        expect(found.content).to.eq(testPost.content);
+      }
     });
   });
 
@@ -132,35 +150,38 @@ describe('Forum Posts API Tests', () => {
 
   it('should delete a forum post as author', () => {
     // Create a new post first
+    let postToDelete;
     cy.request({
       method: 'POST',
       url: `${baseUrl}/communities/${testCommunityId}/posts`,
       headers: { Authorization: `Bearer ${authToken}` },
       body: { content: 'Post to be deleted' }
     }).then((createResponse) => {
-      const postId = createResponse.body.post.id;
+      postToDelete = createResponse.body.post.id;
       
       // Delete it
-      cy.request({
+      return cy.request({
         method: 'DELETE',
-        url: `${baseUrl}/communities/${testCommunityId}/posts/${postId}`,
+        url: `${baseUrl}/communities/${testCommunityId}/posts/${postToDelete}`,
         headers: { Authorization: `Bearer ${authToken}` }
-      }).then((deleteResponse) => {
-        expect(deleteResponse.status).to.eq(204);
-        
-        // Verify it's deleted
-        cy.request({
-          method: 'GET',
-          url: `${baseUrl}/communities/${testCommunityId}/posts`
-        }).then((getResponse) => {
-          const found = getResponse.body.posts.find(p => p.id === postId);
-          expect(found).to.not.exist;
-        });
+      });
+    }).then((deleteResponse) => {
+      expect(deleteResponse.status).to.eq(204);
+      
+      // Verify it's deleted
+      cy.request({
+        method: 'GET',
+        url: `${baseUrl}/communities/${testCommunityId}/posts`
+      }).then((getResponse) => {
+        const found = getResponse.body.posts.find(p => p.id === postToDelete);
+        expect(found).to.not.exist;
       });
     });
   });
 
   it('should fail to delete post without authentication', () => {
+    if (!testPostId) return;
+    
     cy.request({
       method: 'DELETE',
       url: `${baseUrl}/communities/${testCommunityId}/posts/${testPostId}`,

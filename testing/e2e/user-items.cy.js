@@ -1,22 +1,24 @@
 describe('User Items (Status) API Tests', () => {
-  const baseUrl = 'http://localhost:4000/api';
+  const baseUrl = Cypress.env('apiBaseUrl') || 'https://stockroom-1078634816222.us-central1.run.app/api';
+  
   let authToken = null;
   let testCommunityId = null;
   let testItemId = null;
 
+  const timestamp = Date.now();
   const testUser = {
-    username: `statustest_${Date.now()}`,
-    email: `status_${Date.now()}@example.com`,
+    username: `statustest_${timestamp}`,
+    email: `status_${timestamp}@example.com`,
     password: 'testpassword123'
   };
 
   const testCommunity = {
-    title: `Status Test Community ${Date.now()}`,
+    title: `Status Test Community ${timestamp}`,
     description: 'Community for testing user item statuses'
   };
 
   const testItem = {
-    title: `Status Test Item ${Date.now()}`,
+    title: `Status Test Item ${timestamp}`,
     description: 'Item for status testing'
   };
 
@@ -27,6 +29,7 @@ describe('User Items (Status) API Tests', () => {
       url: `${baseUrl}/auth/register`,
       body: testUser
     }).then((response) => {
+      expect(response.status).to.eq(201);
       authToken = response.body.token;
       
       return cy.request({
@@ -36,6 +39,7 @@ describe('User Items (Status) API Tests', () => {
         body: testCommunity
       });
     }).then((response) => {
+      expect(response.status).to.eq(201);
       testCommunityId = response.body.community.id;
       
       return cy.request({
@@ -45,6 +49,7 @@ describe('User Items (Status) API Tests', () => {
         body: testItem
       });
     }).then((response) => {
+      expect(response.status).to.eq(201);
       testItemId = response.body.item.id;
     });
   });
@@ -148,18 +153,18 @@ describe('User Items (Status) API Tests', () => {
       }
     }).then(() => {
       // Get user items
-      cy.request({
+      return cy.request({
         method: 'GET',
         url: `${baseUrl}/user-items?communityId=${testCommunityId}`,
         headers: { Authorization: `Bearer ${authToken}` }
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body).to.have.property('userItems');
-        expect(response.body.userItems).to.be.an('array');
-        const found = response.body.userItems.find(ui => ui.item && ui.item.id === testItemId);
-        expect(found).to.exist;
-        expect(found.status).to.eq('have');
       });
+    }).then((response) => {
+      expect(response.status).to.eq(200);
+      expect(response.body).to.have.property('userItems');
+      expect(response.body.userItems).to.be.an('array');
+      const found = response.body.userItems.find(ui => ui.item && ui.item.id === testItemId);
+      expect(found).to.exist;
+      expect(found.status).to.eq('have');
     });
   });
 

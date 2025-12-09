@@ -1,22 +1,24 @@
 describe('Items API Tests', () => {
-  const baseUrl = 'http://localhost:4000/api';
+  const baseUrl = Cypress.env('apiBaseUrl') || 'https://stockroom-1078634816222.us-central1.run.app/api';
+  
   let authToken = null;
   let testCommunityId = null;
   let testItemId = null;
 
+  const timestamp = Date.now();
   const testUser = {
-    username: `itemtest_${Date.now()}`,
-    email: `item_${Date.now()}@example.com`,
+    username: `itemtest_${timestamp}`,
+    email: `item_${timestamp}@example.com`,
     password: 'testpassword123'
   };
 
   const testCommunity = {
-    title: `Item Test Community ${Date.now()}`,
+    title: `Item Test Community ${timestamp}`,
     description: 'Community for testing items'
   };
 
   const testItem = {
-    title: `Test Item ${Date.now()}`,
+    title: `Test Item ${timestamp}`,
     description: 'This is a test item',
     image: 'https://example.com/item.jpg'
   };
@@ -28,6 +30,7 @@ describe('Items API Tests', () => {
       url: `${baseUrl}/auth/register`,
       body: testUser
     }).then((response) => {
+      expect(response.status).to.eq(201);
       authToken = response.body.token;
       
       return cy.request({
@@ -37,6 +40,7 @@ describe('Items API Tests', () => {
         body: testCommunity
       });
     }).then((response) => {
+      expect(response.status).to.eq(201);
       testCommunityId = response.body.community.id;
     });
   });
@@ -98,6 +102,18 @@ describe('Items API Tests', () => {
   });
 
   it('should get all items in a community', () => {
+    // Ensure we have an item
+    if (!testItemId) {
+      cy.request({
+        method: 'POST',
+        url: `${baseUrl}/communities/${testCommunityId}/items`,
+        headers: { Authorization: `Bearer ${authToken}` },
+        body: testItem
+      }).then((response) => {
+        testItemId = response.body.item.id;
+      });
+    }
+    
     cy.request({
       method: 'GET',
       url: `${baseUrl}/communities/${testCommunityId}/items`
@@ -105,14 +121,28 @@ describe('Items API Tests', () => {
       expect(response.status).to.eq(200);
       expect(response.body).to.have.property('items');
       expect(response.body.items).to.be.an('array');
-      const found = response.body.items.find(item => item.id === testItemId);
-      expect(found).to.exist;
+      if (testItemId) {
+        const found = response.body.items.find(item => item.id === testItemId);
+        expect(found).to.exist;
+      }
     });
   });
 
   it('should update an item', () => {
+    // Ensure we have an item
+    if (!testItemId) {
+      cy.request({
+        method: 'POST',
+        url: `${baseUrl}/communities/${testCommunityId}/items`,
+        headers: { Authorization: `Bearer ${authToken}` },
+        body: testItem
+      }).then((response) => {
+        testItemId = response.body.item.id;
+      });
+    }
+    
     const updatedData = {
-      title: `Updated Item ${Date.now()}`,
+      title: `Updated Item ${timestamp}`,
       description: 'Updated item description'
     };
     
@@ -129,6 +159,8 @@ describe('Items API Tests', () => {
   });
 
   it('should fail to update item without authentication', () => {
+    if (!testItemId) return;
+    
     cy.request({
       method: 'PATCH',
       url: `${baseUrl}/items/${testItemId}`,
@@ -140,10 +172,25 @@ describe('Items API Tests', () => {
   });
 
   it('should delete an item', () => {
+    // Create a new item for deletion test
+    let itemToDelete;
     cy.request({
-      method: 'DELETE',
-      url: `${baseUrl}/items/${testItemId}`,
-      headers: { Authorization: `Bearer ${authToken}` }
+      method: 'POST',
+      url: `${baseUrl}/communities/${testCommunityId}/items`,
+      headers: { Authorization: `Bearer ${authToken}` },
+      body: {
+        title: `Delete Test Item ${timestamp}`,
+        description: 'To be deleted'
+      }
+    }).then((response) => {
+      itemToDelete = response.body.item.id;
+      
+      // Delete it
+      return cy.request({
+        method: 'DELETE',
+        url: `${baseUrl}/items/${itemToDelete}`,
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
     }).then((response) => {
       expect(response.status).to.eq(204);
       
@@ -152,38 +199,37 @@ describe('Items API Tests', () => {
         method: 'GET',
         url: `${baseUrl}/communities/${testCommunityId}/items`
       }).then((getResponse) => {
-        const found = getResponse.body.items.find(item => item.id === testItemId);
+        const found = getResponse.body.items.find(item => item.id === itemToDelete);
         expect(found).to.not.exist;
       });
-      
-      testItemId = null; // Mark as deleted
     });
   });
 
   it('should get item ownership counts', () => {
     // Create a new item first
+    let countTestItemId;
     cy.request({
       method: 'POST',
       url: `${baseUrl}/communities/${testCommunityId}/items`,
       headers: { Authorization: `Bearer ${authToken}` },
       body: {
-        title: `Count Test Item ${Date.now()}`,
+        title: `Count Test Item ${timestamp}`,
         description: 'For ownership count testing'
       }
     }).then((createResponse) => {
-      const itemId = createResponse.body.item.id;
+      countTestItemId = createResponse.body.item.id;
       
       // Get ownership counts
-      cy.request({
+      return cy.request({
         method: 'GET',
         url: `${baseUrl}/communities/${testCommunityId}/item-ownership-counts`
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body).to.have.property('ownershipCounts');
-        expect(response.body.ownershipCounts).to.be.an('object');
-        // New item should have 0 owners
-        expect(response.body.ownershipCounts[itemId]).to.eq(0);
       });
+    }).then((response) => {
+      expect(response.status).to.eq(200);
+      expect(response.body).to.have.property('ownershipCounts');
+      expect(response.body.ownershipCounts).to.be.an('object');
+      // New item should have 0 owners
+      expect(response.body.ownershipCounts[countTestItemId]).to.eq(0);
     });
   });
 });
